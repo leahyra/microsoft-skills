@@ -1,17 +1,20 @@
 ---
 name: azure-identity-ts
-description: Authenticate to Azure services using Azure Identity SDK for JavaScript (@azure/identity). Use when configuring authentication with DefaultAzureCredential, managed identity, service principals, or interactive browser login.
+description: Authenticate to Azure services using Azure Identity library for JavaScript (@azure/identity). Use when configuring authentication with DefaultAzureCredential, managed identity, service principals, or interactive browser login.
 package: "@azure/identity"
 ---
 
-# Azure Identity SDK for TypeScript
+# Azure Identity library for TypeScript
 
-Authenticate to Azure services with various credential types.
+Authentication library for Azure SDK clients using Microsoft Entra ID.
 
 ## Installation
 
 ```bash
 npm install @azure/identity
+
+# For Visual Studio Code credential support
+npm install @azure/identity-vscode
 ```
 
 ## Environment Variables
@@ -56,14 +59,7 @@ const blobClient = new BlobServiceClient(
 );
 ```
 
-**Credential Chain Order:**
-1. EnvironmentCredential
-2. WorkloadIdentityCredential
-3. ManagedIdentityCredential
-4. VisualStudioCodeCredential
-5. AzureCliCredential
-6. AzurePowerShellCredential
-7. AzureDeveloperCliCredential
+See [DefaultAzureCredential overview](https://aka.ms/azsdk/js/identity/credential-chains#defaultazurecredential-overview) for the current credential chain order and defaults.
 
 ## Managed Identity
 
@@ -88,6 +84,14 @@ const credential = new ManagedIdentityCredential({
 ```typescript
 const credential = new ManagedIdentityCredential({
   resourceId: "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<name>"
+});
+```
+
+### User-Assigned (by Object ID)
+
+```typescript
+const credential = new ManagedIdentityCredential({
+  objectId: "<user-assigned-object-id>"
 });
 ```
 
@@ -173,6 +177,17 @@ const credential = new ChainedTokenCredential(
 ```
 
 ## Developer Credentials
+
+### Visual Studio Code
+
+```typescript
+import { useIdentityPlugin, VisualStudioCodeCredential } from "@azure/identity";
+import { vsCodePlugin } from "@azure/identity-vscode";
+
+useIdentityPlugin(vsCodePlugin);
+
+const credential = new VisualStudioCodeCredential();
+```
 
 ### Azure CLI
 

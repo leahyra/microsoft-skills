@@ -6,9 +6,9 @@ description: |
 package: azure-identity
 ---
 
-# Azure Identity SDK for Python
+# Azure Identity library for Python
 
-Authentication library for Azure SDK clients using Microsoft Entra ID (formerly Azure AD).
+Authentication library for Azure SDK clients using Microsoft Entra ID.
 
 Use this skill when:
 - An app needs to authenticate to Azure services from Python
@@ -24,7 +24,7 @@ Use this skill when:
 pip install azure-identity
 ```
 
-Optional for VS Code / broker-based desktop auth:
+For VS Code or broker-based desktop auth:
 
 ```bash
 pip install azure-identity-broker
@@ -77,19 +77,7 @@ client = BlobServiceClient(
 
 ### Credential Chain Order
 
-| Order | Credential | Environment |
-|-------|-----------|-------------|
-| 1 | EnvironmentCredential | CI/CD, containers (uses AZURE_CLIENT_SECRET or AZURE_CLIENT_CERTIFICATE_PATH) |
-| 2 | WorkloadIdentityCredential | Kubernetes with workload identity webhook |
-| 3 | ManagedIdentityCredential | Azure VMs, App Service, Functions, AKS, Arc, Service Fabric |
-| 4 | SharedTokenCacheCredential | Windows only, shared with Microsoft dev tools |
-| 5 | VisualStudioCodeCredential | VS Code Azure Resources extension auth record |
-| 6 | AzureCliCredential | `az login` |
-| 7 | AzurePowerShellCredential | `Connect-AzAccount` |
-| 8 | AzureDeveloperCliCredential | `azd auth login` |
-| 9 | BrokerCredential | Windows/WSL only, requires `azure-identity-broker` package |
-
-> **InteractiveBrowserCredential** is excluded by default. Set `exclude_interactive_browser_credential=False` to enable.
+See [DefaultAzureCredential overview](https://aka.ms/azsdk/python/identity/credential-chains#defaultazurecredential-overview) for the current credential chain order and defaults.
 
 ### Customizing DefaultAzureCredential
 
@@ -526,4 +514,4 @@ AZURE_LOG_LEVEL=debug
 | PyPI Package | https://pypi.org/project/azure-identity/ |
 | API Reference | https://learn.microsoft.com/python/api/azure-identity |
 | GitHub Source | https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/identity/azure-identity |
-| Credential Chains | https://learn.microsoft.com/azure/developer/python/sdk/authentication/credential-chains |
+| Credential Chains | https://aka.ms/azsdk/python/identity/credential-chains |

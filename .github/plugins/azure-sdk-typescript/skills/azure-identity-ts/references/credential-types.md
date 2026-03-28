@@ -36,13 +36,7 @@ const blobClient = new BlobServiceClient(
 );
 ```
 
-**Credential Chain Order:**
-1. `EnvironmentCredential` — Service principal from env vars
-2. `WorkloadIdentityCredential` — Kubernetes workload identity
-3. `ManagedIdentityCredential` — Azure managed identity
-4. `AzureDeveloperCliCredential` — `azd auth login`
-5. `AzureCliCredential` — `az login`
-6. `AzurePowerShellCredential` — `Connect-AzAccount`
+See [DefaultAzureCredential overview](https://aka.ms/azsdk/js/identity/credential-chains#defaultazurecredential-overview) for the current credential chain order and defaults.
 
 ### Customizing DefaultAzureCredential
 
@@ -105,6 +99,7 @@ const credentialFromEnv = new ClientSecretCredential(
 ```
 
 **Required Environment Variables:**
+
 ```bash
 AZURE_TENANT_ID=<tenant-id>
 AZURE_CLIENT_ID=<client-id>
@@ -205,7 +200,10 @@ const credential = new AzurePowerShellCredential();
 ### VisualStudioCodeCredential
 
 ```typescript
-import { VisualStudioCodeCredential } from "@azure/identity";
+import { useIdentityPlugin, VisualStudioCodeCredential } from "@azure/identity";
+import { vsCodePlugin } from "@azure/identity-vscode";
+
+useIdentityPlugin(vsCodePlugin);
 
 // Uses Azure Account extension in VS Code
 const credential = new VisualStudioCodeCredential();
@@ -266,14 +264,6 @@ AZURE_TENANT_ID=<tenant-id>
 AZURE_CLIENT_ID=<client-id>
 AZURE_CLIENT_CERTIFICATE_PATH=/path/to/cert.pem
 AZURE_CLIENT_CERTIFICATE_PASSWORD=<optional>
-```
-
-Username/Password (not recommended):
-```bash
-AZURE_TENANT_ID=<tenant-id>
-AZURE_CLIENT_ID=<client-id>
-AZURE_USERNAME=<username>
-AZURE_PASSWORD=<password>
 ```
 
 ## TokenCredential Interface
@@ -391,4 +381,4 @@ AzureLogger.log = (...args) => {
 
 - [Browser Authentication Reference](./browser-auth.md)
 - [Azure Identity Best Practices](https://learn.microsoft.com/azure/developer/javascript/sdk/authentication/)
-- [Managed Identity Overview](https://learn.microsoft.com/azure/active-directory/managed-identities-azure-resources/overview)
+- [Managed Identity Overview](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview)

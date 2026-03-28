@@ -126,7 +126,17 @@ const credential = new ManagedIdentityCredential({
 });
 ```
 
-### 3.4 Anti-Patterns (ERRORS)
+### 3.4 ✅ CORRECT: User-Assigned Managed Identity (Object ID)
+
+```typescript
+import { ManagedIdentityCredential } from "@azure/identity";
+
+const credential = new ManagedIdentityCredential({
+  objectId: "<user-assigned-object-id>"
+});
+```
+
+### 3.5 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Passing tenantId to ManagedIdentityCredential
 

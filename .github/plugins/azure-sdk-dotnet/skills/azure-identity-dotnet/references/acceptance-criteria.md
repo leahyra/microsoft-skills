@@ -95,13 +95,15 @@ var secretClient = new SecretClient(uri2, new DefaultAzureCredential()); // Crea
 ## 3. ManagedIdentityCredential
 
 ### 3.1 ✅ CORRECT: System-assigned Managed Identity
+
 ```csharp
 using Azure.Identity;
 
 var credential = new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned);
 ```
 
-### 3.2 ✅ CORRECT: User-assigned by Client ID
+### 3.2 ✅ CORRECT: User-assigned managed identity by Client ID
+
 ```csharp
 using Azure.Identity;
 
@@ -109,7 +111,8 @@ var credential = new ManagedIdentityCredential(
     ManagedIdentityId.FromUserAssignedClientId("<client-id>"));
 ```
 
-### 3.3 ✅ CORRECT: User-assigned by Resource ID
+### 3.3 ✅ CORRECT: User-assigned managed identity by Resource ID
+
 ```csharp
 using Azure.Identity;
 using Azure.Core;
@@ -118,12 +121,48 @@ var credential = new ManagedIdentityCredential(
     ManagedIdentityId.FromUserAssignedResourceId("<resource-id>"));
 ```
 
-### 3.4 Anti-Patterns (ERRORS)
+### 3.4 ✅ CORRECT: User-assigned managed identity by Object ID
 
-#### ❌ INCORRECT: Using deprecated constructor
 ```csharp
-// WRONG - use ManagedIdentityId instead
+using Azure.Identity;
+using Azure.Core;
+
+var credential = new ManagedIdentityCredential(
+    ManagedIdentityId.FromUserAssignedObjectId("<object-id>"));
+```
+
+### 3.5 Anti-Patterns (ERRORS)
+
+#### 3.5.1 ❌ INCORRECT: Using deprecated default constructor
+
+```csharp
+// WRONG - use ManagedIdentityId.SystemAssigned instead
+var credential = new ManagedIdentityCredential();
+
+// ✅ CORRECT:
+var credential = new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned);
+```
+
+#### 3.5.2 ❌ INCORRECT: Using deprecated constructor for client ID
+
+```csharp
+// WRONG - use ManagedIdentityId.FromUserAssignedClientId instead
 var credential = new ManagedIdentityCredential(clientId: "<client-id>");
+
+// ✅ CORRECT:
+var credential = new ManagedIdentityCredential(
+    ManagedIdentityId.FromUserAssignedClientId("<client-id>"));
+```
+
+#### 3.5.3 ❌ INCORRECT: Using deprecated constructor for resource ID
+
+```csharp
+// WRONG - use ManagedIdentityId.FromUserAssignedResourceId instead
+var credential = new ManagedIdentityCredential(new ResourceIdentifier("<resource-id>"));
+
+// ✅ CORRECT:
+var credential = new ManagedIdentityCredential(
+    ManagedIdentityId.FromUserAssignedResourceId("<resource-id>"));
 ```
 
 ---
@@ -131,6 +170,7 @@ var credential = new ManagedIdentityCredential(clientId: "<client-id>");
 ## 4. ClientSecretCredential
 
 ### 4.1 ✅ CORRECT: Client Secret from Environment
+
 ```csharp
 using Azure.Identity;
 
@@ -143,12 +183,13 @@ var credential = new ClientSecretCredential(
 ### 4.2 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Hardcoded secrets
+
 ```csharp
 // WRONG - never hardcode secrets
 var credential = new ClientSecretCredential(
-    tenantId: "my-tenant-id",
-    clientId: "my-client-id",
-    clientSecret: "super-secret-value");
+    tenantId: "<tenant-id>",
+    clientId: "<client-id>",
+    clientSecret: "<super-secret-value>");
 ```
 
 ---
@@ -156,6 +197,7 @@ var credential = new ClientSecretCredential(
 ## 5. ClientCertificateCredential
 
 ### 5.1 ✅ CORRECT: Certificate from File
+
 ```csharp
 using Azure.Identity;
 using System.Security.Cryptography.X509Certificates;
@@ -170,6 +212,7 @@ var credential = new ClientCertificateCredential(
 ### 5.2 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Using obsolete X509Certificate2 constructor
+
 ```csharp
 // WRONG - use X509CertificateLoader.LoadCertificateFromFile instead
 var certificate = new X509Certificate2("MyCertificate.pfx", "password");
@@ -180,6 +223,7 @@ var certificate = new X509Certificate2("MyCertificate.pfx", "password");
 ## 6. ChainedTokenCredential
 
 ### 6.1 ✅ CORRECT: Custom Credential Chain
+
 ```csharp
 using Azure.Identity;
 
@@ -195,6 +239,7 @@ var client = new SecretClient(
 ### 6.2 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Passing credential types instead of instances
+
 ```csharp
 // WRONG - ChainedTokenCredential expects credential instances, not types
 var credential = new ChainedTokenCredential(
@@ -207,6 +252,7 @@ var credential = new ChainedTokenCredential(
 ## 7. Developer Credentials
 
 ### 7.1 ✅ CORRECT: Azure CLI Credential
+
 ```csharp
 using Azure.Identity;
 
@@ -214,6 +260,7 @@ var credential = new AzureCliCredential();
 ```
 
 ### 7.2 ✅ CORRECT: Azure Developer CLI Credential
+
 ```csharp
 using Azure.Identity;
 
@@ -221,6 +268,7 @@ var credential = new AzureDeveloperCliCredential();
 ```
 
 ### 7.3 ✅ CORRECT: Visual Studio Credential
+
 ```csharp
 using Azure.Identity;
 
@@ -228,6 +276,7 @@ var credential = new VisualStudioCredential();
 ```
 
 ### 7.4 ✅ CORRECT: Interactive Browser Credential
+
 ```csharp
 using Azure.Identity;
 
@@ -239,6 +288,7 @@ var credential = new InteractiveBrowserCredential();
 ## 8. Sovereign Clouds
 
 ### 8.1 ✅ CORRECT: Azure Government
+
 ```csharp
 using Azure.Identity;
 
@@ -250,6 +300,7 @@ var credential = new DefaultAzureCredential(
 ```
 
 ### 8.2 ✅ CORRECT: Azure China
+
 ```csharp
 using Azure.Identity;
 
@@ -265,6 +316,7 @@ var credential = new DefaultAzureCredential(
 ## 9. Error Handling
 
 ### 9.1 ✅ CORRECT: Catching Authentication Errors
+
 ```csharp
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
@@ -290,6 +342,7 @@ catch (CredentialUnavailableException e)
 ### 9.2 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Swallowing authentication exceptions
+
 ```csharp
 // WRONG - don't swallow authentication exceptions
 try
@@ -306,13 +359,14 @@ catch (Exception)
 
 ## 10. Environment-Based Credential Selection
 
-### 10.1 ✅ CORRECT: Production vs Development
+### 10.1 ✅ CORRECT: Production vs. Development
+
 ```csharp
 using Azure.Identity;
 using Azure.Core;
 
 TokenCredential credential = builder.Environment.IsProduction()
-    ? new ManagedIdentityCredential("<client-id>")
+    ? new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId("<client-id>"))
     : new DefaultAzureCredential();
 ```
 
@@ -320,8 +374,8 @@ TokenCredential credential = builder.Environment.IsProduction()
 
 ## Key Exceptions
 
-| Exception | Description |
-|-----------|-------------|
-| `AuthenticationFailedException` | Base exception for authentication errors |
-| `CredentialUnavailableException` | Credential cannot authenticate in current environment |
-| `AuthenticationRequiredException` | Interactive authentication is required |
+| Exception                         | Description                                           |
+|-----------------------------------|-------------------------------------------------------|
+| `AuthenticationFailedException`   | Base exception for authentication errors              |
+| `CredentialUnavailableException`  | Credential cannot authenticate in current environment |
+| `AuthenticationRequiredException` | Interactive authentication is required                |

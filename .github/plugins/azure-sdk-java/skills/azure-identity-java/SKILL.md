@@ -1,12 +1,12 @@
 ---
 name: azure-identity-java
-description: Azure Identity Java SDK for authentication with Azure services. Use when implementing DefaultAzureCredential, managed identity, service principal, or any Azure authentication pattern in Java applications.
+description: Azure Identity library for Java authentication with Azure services. Use when implementing DefaultAzureCredential, managed identity, service principal, or any Azure authentication pattern in Java applications.
 package: com.azure:azure-identity
 ---
 
-# Azure Identity (Java)
+# Azure Identity library for Java
 
-Authenticate Java applications with Azure services using Microsoft Entra ID (Azure AD).
+Authentication library for Azure SDK clients using Microsoft Entra ID.
 
 ## Installation
 
@@ -33,14 +33,7 @@ Authenticate Java applications with Azure services using Microsoft Entra ID (Azu
 
 ## DefaultAzureCredential (Recommended)
 
-The `DefaultAzureCredential` tries multiple authentication methods in order:
-
-1. Environment variables
-2. Workload Identity
-3. Managed Identity
-4. Azure CLI
-5. Azure PowerShell
-6. Azure Developer CLI
+The `DefaultAzureCredential` tries multiple authentication methods in order. See [DefaultAzureCredential overview](https://aka.ms/azsdk/java/identity/credential-chains#defaultazurecredential-overview) for the current credential chain order and defaults.
 
 ```java
 import com.azure.identity.DefaultAzureCredential;
@@ -151,6 +144,7 @@ EnvironmentCredential credential = new EnvironmentCredentialBuilder().build();
 ### Required Environment Variables
 
 **For service principal with secret:**
+
 ```bash
 AZURE_TENANT_ID=<tenant-id>
 AZURE_CLIENT_ID=<client-id>
@@ -158,19 +152,12 @@ AZURE_CLIENT_SECRET=<client-secret>
 ```
 
 **For service principal with certificate:**
+
 ```bash
 AZURE_TENANT_ID=<tenant-id>
 AZURE_CLIENT_ID=<client-id>
 AZURE_CLIENT_CERTIFICATE_PATH=/path/to/cert.pem
 AZURE_CLIENT_CERTIFICATE_PASSWORD=<optional-password>
-```
-
-**For username/password:**
-```bash
-AZURE_TENANT_ID=<tenant-id>
-AZURE_CLIENT_ID=<client-id>
-AZURE_USERNAME=<username>
-AZURE_PASSWORD=<password>
 ```
 
 ## Azure CLI Credential

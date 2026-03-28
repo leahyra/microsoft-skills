@@ -1,8 +1,9 @@
-# Azure Identity SDK for Java - Examples
+# Azure Identity library for Java - Examples
 
-Comprehensive code examples for the Azure Identity SDK for Java.
+Comprehensive code examples for the Azure Identity library for Java.
 
 ## Table of Contents
+
 - [Maven Dependency](#maven-dependency)
 - [DefaultAzureCredential](#defaultazurecredential)
 - [ChainedTokenCredential](#chainedtokencredential)
@@ -83,14 +84,7 @@ SecretClient client = new SecretClientBuilder()
 
 ### Authentication Order
 
-DefaultAzureCredential tries these methods in order:
-1. EnvironmentCredential
-2. WorkloadIdentityCredential
-3. ManagedIdentityCredential
-4. AzureDeveloperCliCredential
-5. IntelliJCredential
-6. AzureCliCredential
-7. AzurePowerShellCredential
+See [DefaultAzureCredential overview](https://aka.ms/azsdk/java/identity/credential-chains#defaultazurecredential-overview) for the current credential chain order and defaults.
 
 ## ChainedTokenCredential
 
@@ -291,6 +285,7 @@ Authenticates using environment variables. Supports service principal with secre
 ### Required Environment Variables
 
 For service principal with secret:
+
 ```bash
 AZURE_TENANT_ID=<tenant-id>
 AZURE_CLIENT_ID=<client-id>
@@ -298,19 +293,12 @@ AZURE_CLIENT_SECRET=<client-secret>
 ```
 
 For service principal with certificate:
+
 ```bash
 AZURE_TENANT_ID=<tenant-id>
 AZURE_CLIENT_ID=<client-id>
 AZURE_CLIENT_CERTIFICATE_PATH=<path-to-certificate>
 AZURE_CLIENT_CERTIFICATE_PASSWORD=<certificate-password>  # Optional
-```
-
-For username/password:
-```bash
-AZURE_TENANT_ID=<tenant-id>
-AZURE_CLIENT_ID=<client-id>
-AZURE_USERNAME=<username>
-AZURE_PASSWORD=<password>
 ```
 
 ### Usage
