@@ -120,6 +120,22 @@
       "keywords": ["azure", "rust", "sdk", "keyvault", "storage", "cosmos"],
       "category": "sdk",
       "skills": "skills/"
+    },
+    {
+      "name": "microsoft-foundry",
+      "description": "All-in-one plugin for Microsoft AI Foundry. 39 SDK skills across Python, .NET, TypeScript, and Java for agents, voice, search, content safety, and model deployment. Includes Azure MCP, Foundry MCP, and Microsoft Docs MCP servers.",
+      "source": "./.github/plugins/microsoft-foundry",
+      "version": "1.0.0",
+      "author": {
+        "name": "microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/microsoft-foundry",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": ["foundry", "azure-ai", "agents", "voice", "search", "rag", "content-safety", "model-deployment", "mcp"],
+      "category": "ai",
+      "skills": "skills/"
     }
   ]
 }

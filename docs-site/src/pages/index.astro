@@ -58,6 +58,15 @@ import hooks from '../data/hooks.json';
             <p class="doc-desc">AI-powered wiki generator — Mermaid diagrams, source citations, onboarding guides, AGENTS.md, and llms.txt for any codebase</p>
           </div>
         </button>
+
+        <!-- Microsoft Foundry -->
+        <button type="button" class="doc-card plugin-card-btn" onclick="document.getElementById('foundry-modal').showModal()">
+          <span class="doc-icon">&#x2666;&#xFE0E;</span>
+          <div class="doc-content">
+            <h3 class="doc-title">Microsoft Foundry</h3>
+            <p class="doc-desc">All-in-one AI Foundry plugin — 39 SDK skills across 4 languages, plus Azure MCP, Foundry MCP, and Microsoft Docs servers</p>
+          </div>
+        </button>
       </div>
     </section>
 
@@ -154,6 +163,116 @@ import hooks from '../data/hooks.json';
             Share
           </button>
           <a href="https://github.com/microsoft/skills/tree/main/.github/plugins/deep-wiki" target="_blank" rel="noopener" class="modal-link">
+            View on GitHub
+            <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Microsoft Foundry Modal -->
+    <dialog id="foundry-modal" class="plugin-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon">&#x2666;&#xFE0E;</span>
+            <h2 class="modal-title">Microsoft Foundry</h2>
+            <span class="modal-badge">v1.0.0</span>
+          </div>
+          <button type="button" class="modal-close" onclick="document.getElementById('foundry-modal').close()" aria-label="Close">&#x2715;</button>
+        </div>
+        <p class="modal-desc">All-in-one plugin for Microsoft AI Foundry development. 39 SDK skills across Python, .NET, TypeScript, and Java for agents, voice, search, content safety, and model deployment. Includes three MCP servers for live Azure operations and up-to-date documentation.</p>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Install</h3>
+          <div class="modal-code-block">
+            <code>/plugin marketplace add microsoft/skills</code>
+            <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('/plugin marketplace add microsoft/skills');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)" aria-label="Copy">Copy</button>
+          </div>
+          <div class="modal-code-block">
+            <code>/plugin install microsoft-foundry@skills</code>
+            <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('/plugin install microsoft-foundry@skills');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)" aria-label="Copy">Copy</button>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">MCP Servers</h3>
+          <div class="modal-table">
+            <div class="modal-row">
+              <code class="modal-cmd">Azure MCP</code>
+              <span>Manage 40+ Azure services from your editor</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">Foundry MCP</code>
+              <span>Model catalog, agents, indexes at mcp.ai.azure.com</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">Microsoft Docs</code>
+              <span>Real-time Microsoft Learn search for current SDK patterns</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Skills by Language</h3>
+          <div class="modal-table">
+            <div class="modal-row">
+              <code class="modal-cmd">Python</code>
+              <span>16 skills — projects, agents, hosted agents, search, voice, ML, vision</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">.NET</code>
+              <span>8 skills — projects, persistent agents, OpenAI, search, voice</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">TypeScript</code>
+              <span>7 skills — projects, search, voice, content safety, translation</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">Java</code>
+              <span>7 skills — projects, persistent agents, voice, content safety, vision</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Orchestration</h3>
+          <div class="modal-table">
+            <div class="modal-row">
+              <code class="modal-cmd">project/create</code>
+              <span>Provision a new Foundry project</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">models/deploy-model</code>
+              <span>Preset, custom, or capacity-aware deployment</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">agent/create</code>
+              <span>Scaffold agents with Agent Framework SDK</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">quota</code>
+              <span>Check usage and troubleshoot QuotaExceeded</span>
+            </div>
+            <div class="modal-row">
+              <code class="modal-cmd">rbac</code>
+              <span>Manage roles, identities, and permissions</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="modal-share-btn" id="foundry-share-btn" aria-label="Share">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+            Share
+          </button>
+          <a href="https://github.com/microsoft/skills/tree/main/.github/plugins/microsoft-foundry" target="_blank" rel="noopener" class="modal-link">
             View on GitHub
             <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
@@ -776,11 +895,28 @@ import hooks from '../data/hooks.json';
     });
   });
 
-  // Hash routing for deep-wiki plugin
+  document.getElementById('foundry-share-btn')?.addEventListener('click', function() {
+    const url = `${window.location.origin}${window.location.pathname}#plugin=microsoft-foundry`;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = this;
+      btn.textContent = '✓ Copied!';
+      btn.style.color = '#22c55e';
+      btn.style.borderColor = '#22c55e';
+      setTimeout(() => {
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" /></svg> Share';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  });
+
+  // Hash routing for plugin modals
   function checkPluginHash() {
     const hash = window.location.hash;
     if (hash === '#plugin=deep-wiki') {
       document.getElementById('deep-wiki-modal')?.showModal();
+    } else if (hash === '#plugin=microsoft-foundry') {
+      document.getElementById('foundry-modal')?.showModal();
     }
   }
 
@@ -795,8 +931,18 @@ import hooks from '../data/hooks.json';
     }
   });
 
+  document.getElementById('foundry-modal')?.addEventListener('close', () => {
+    if (window.location.hash === '#plugin=microsoft-foundry') {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  });
+
   // Set hash when modal opens via button
-  document.querySelector('.plugin-card-btn')?.addEventListener('click', () => {
-    history.replaceState(null, '', '#plugin=deep-wiki');
+  document.querySelectorAll('.plugin-card-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modalId = btn.getAttribute('onclick')?.match(/getElementById\('(.+?)'\)/)?.[1];
+      if (modalId === 'deep-wiki-modal') history.replaceState(null, '', '#plugin=deep-wiki');
+      if (modalId === 'foundry-modal') history.replaceState(null, '', '#plugin=microsoft-foundry');
+    });
   });
 </script>
