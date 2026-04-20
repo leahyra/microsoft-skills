@@ -10,9 +10,17 @@ metadata:
 
 # Azure Document Intelligence (Form Recognizer) SDK for Java
 
+> **⚠️ MIGRATION NOTICE**: The Azure AI Form Recognizer service has been rebranded to **Azure AI Document Intelligence**. While the Maven package `azure-ai-formrecognizer` remains available for compatibility, **new projects should use `azure-ai-documentintelligence`** which provides the latest features and updates.
+>
+> **For new projects**: Use the `com.azure:azure-ai-documentintelligence` package instead (see [Maven Central](https://central.sonatype.com/artifact/com.azure/azure-ai-documentintelligence)).
+>
+> **This skill remains valid** for existing projects using `azure-ai-formrecognizer`, but be aware you're using the legacy package name. The API patterns shown here are compatible with both packages.
+
 Build document analysis applications using the Azure AI Document Intelligence SDK for Java.
 
 ## Installation
+
+### Legacy Package (Form Recognizer)
 
 ```xml
 <dependency>
@@ -21,6 +29,20 @@ Build document analysis applications using the Azure AI Document Intelligence SD
     <version>4.2.0-beta.1</version>
 </dependency>
 ```
+
+### Recommended Package (Document Intelligence)
+
+**For new projects, use the rebranded package:**
+
+```xml
+<dependency>
+    <groupId>com.azure</groupId>
+    <artifactId>azure-ai-documentintelligence</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+> **Note**: The API patterns in this skill apply to both packages. Replace package names and imports as needed when using `azure-ai-documentintelligence`.
 
 ## Client Creation
 
