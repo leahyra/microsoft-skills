@@ -52,10 +52,9 @@ import { createAzurePlaywrightConfig, ServiceOS } from "@azure/playwright";
 import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identity";
 import config from "./playwright.config";
 
-// Option 1: DefaultAzureCredential — for local dev; set AZURE_TOKEN_CREDENTIALS=prod for production
-// set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential> to use in production
+// Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
-// Option 2: Use a specific credential directly for production
+// Or use a specific credential directly in production:
 // const credential = new ManagedIdentityCredential();
 
 export default defineConfig(

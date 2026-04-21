@@ -139,11 +139,10 @@ ServiceClient client = new ServiceClientBuilder()
 
 // TypeScript
 import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identity";
-//option 1: use DefaultAzureCredential with environment variable `AZURE_TOKEN_CREDENTIALS` set to specify production credential
-// set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=`<specific_credential>` to use DefaultAzureCredential in production
+// Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
-//option 2: directly use specific credential for production
-// const credential = new ManagedIdentityCredential(); // or other specific credential for production
+// Or use a specific credential directly in production:
+// const credential = new ManagedIdentityCredential();
 const client = new ServiceClient(endpoint, credential);
 ```
 
