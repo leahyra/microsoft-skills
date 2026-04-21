@@ -31,8 +31,11 @@ This skill includes specialized sub-skills for specific workflows. **Use these i
 | **models/deploy-model** | Unified model deployment with intelligent routing. Handles quick preset deployments, fully customized deployments (version/SKU/capacity/RAI), and capacity discovery across regions. Routes to sub-skills: `preset` (quick deploy), `customize` (full control), `capacity` (find availability). | [models/deploy-model/SKILL.md](models/deploy-model/SKILL.md) |
 | **quota** | Managing quotas and capacity for Microsoft Foundry resources. Use when checking quota usage, troubleshooting deployment failures due to insufficient quota, requesting quota increases, or planning capacity. | [quota/quota.md](quota/quota.md) |
 | **rbac** | Managing RBAC permissions, role assignments, managed identities, and service principals for Microsoft Foundry resources. Use for access control, auditing permissions, and CI/CD setup. | [rbac/rbac.md](rbac/rbac.md) |
+| **finetuning** | Fine-tune models on Azure AI Foundry — dataset preparation, validation, grader design, training (SFT/DPO/RFT), monitoring, checkpoint selection, deployment, and evaluation. Use for: fine-tune, SFT, DPO, RFT, training data, grader, reinforcement learning, distillation, custom model. | [finetuning/SKILL.md](finetuning/SKILL.md) |
 
 > 💡 **Tip:** For a complete onboarding flow: `project/create` → agent workflows (`deploy` → `invoke`).
+
+> 💡 **Fine-Tuning:** Use `finetuning` for all model customization workflows — it covers SFT distillation, DPO preference optimization, and RFT with graders and tool calling. Includes scripts for the full lifecycle: data validation → grader calibration → submit → monitor → deploy → evaluate.
 
 > 💡 **Model Deployment:** Use `models/deploy-model` for all deployment scenarios — it intelligently routes between quick preset deployment, customized deployment with full control, and capacity discovery across regions.
 
