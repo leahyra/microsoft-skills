@@ -1,0 +1,157 @@
+# Test scenarios for finetuning skill evaluation
+# Each scenario tests a specific usage pattern against acceptance criteria
+
+config:
+  model: gpt-4
+  max_tokens: 2000
+  temperature: 0.3
+
+scenarios:
+  # SFT Job Submission
+  - name: submit_sft_job
+    prompt: |
+      Submit a supervised fine-tuning job on Azure AI Foundry.
+      Use gpt-4.1-mini as the base model. Training file is train.jsonl,
+      validation file is val.jsonl. Use 2 epochs and learning rate 1.0.
+      Connect using the project /v1/ endpoint from environment variables.
+    expected_patterns:
+      - "OpenAI"
+      - "OPENAI_BASE_URL"
+      - "fine_tuning.jobs.create"
+      - "training_file"
+      - "validation_file"
+      - '"supervised"'
+      - "n_epochs"
+    forbidden_patterns:
+      - "AzureOpenAI"
+      - "api_version"
+      - "api-version"
+      - 'api_key="'
+    tags:
+      - sft
+      - basic
+      - job-submission
+
+  # RFT with Python Grader
+  - name: submit_rft_with_python_grader
+    prompt: |
+      Submit a reinforcement fine-tuning job for o4-mini with a Python grader.
+      The grader should check if the model's output contains the correct action
+      and amount from the expected answer. Use pass_threshold of 0.80.
+    expected_patterns:
+      - "reinforcement"
+      - '"python"'
+      - "def grade"
+      - "sample"
+      - "item"
+      - "pass_threshold"
+    forbidden_patterns:
+      - '"system"'
+      - "hyperparameters.*pass_threshold"
+    tags:
+      - rft
+      - grader
+      - job-submission
+
+  # File Upload with Wait
+  - name: upload_training_files
+    prompt: |
+      Upload training and validation JSONL files to Azure AI Foundry
+      for fine-tuning. Make sure they're processed before submitting a job.
+    expected_patterns:
+      - "files.create"
+      - "purpose"
+      - "fine-tune"
+      - "wait_for_processing"
+    forbidden_patterns:
+      - "files.create.*fine_tuning.jobs.create"
+    tags:
+      - basic
+      - file-upload
+
+  # RFT Data Format
+  - name: rft_training_data_format
+    prompt: |
+      Show me the correct JSONL format for RFT training data on Azure AI Foundry.
+      The task is a customer service resolution where the model calls tools.
+    expected_patterns:
+      - "developer"
+      - "user"
+      - "messages"
+    forbidden_patterns:
+      - '"system"'
+      - '"assistant"'
+    tags:
+      - rft
+      - data-format
+
+  # DPO Job Submission
+  - name: submit_dpo_job
+    prompt: |
+      Submit a DPO fine-tuning job for gpt-4.1-mini. Use 2 epochs,
+      beta 0.1, and learning rate 1.0. Training file ID is file-abc123.
+    expected_patterns:
+      - '"dpo"'
+      - "beta"
+      - "n_epochs"
+      - "method"
+    forbidden_patterns:
+      - "hyperparameters.*=.*{.*n_epochs"
+    tags:
+      - dpo
+      - job-submission
+
+  # Model Deployment
+  - name: deploy_finetuned_model
+    prompt: |
+      Deploy a fine-tuned OpenAI model on Azure AI Foundry.
+      The model name is gpt-4.1-mini.ft-abc123-my-model.
+      Deploy as "my-ft-deployment" with 50K TPM capacity.
+    expected_patterns:
+      - "deployment"
+      - "model-name"
+      - "model-format"
+      - "sku-capacity"
+    forbidden_patterns:
+      - "GlobalStandard"
+    tags:
+      - deployment
+      - basic
+
+  # Grader Calibration
+  - name: calibrate_rft_grader
+    prompt: |
+      Before submitting an RFT job, I need to calibrate my grader's
+      pass_threshold. Run the base model on my training data and find
+      the right threshold.
+    expected_patterns:
+      - "base model"
+      - "threshold"
+      - "pass_rate"
+      - "fail"
+    forbidden_patterns:
+      - "pass_threshold.*1.0"
+      - "pass_threshold.*0.5"
+    tags:
+      - rft
+      - grader
+      - calibration
+
+  # Agentic RFT with Tools
+  - name: submit_agentic_rft_with_tools
+    prompt: |
+      Submit an agentic RFT job where the model calls a tool endpoint
+      during training. The tool is called "search" and is hosted at
+      https://my-tools.azurewebsites.net/tool/search.
+    expected_patterns:
+      - "tools"
+      - "server_url"
+      - "name"
+      - "reinforcement"
+      - "max_episode_steps"
+    forbidden_patterns:
+      - "functions"
+    tags:
+      - rft
+      - agentic
+      - tools
