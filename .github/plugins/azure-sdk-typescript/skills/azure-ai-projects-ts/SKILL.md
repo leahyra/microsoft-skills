@@ -28,6 +28,7 @@ npm install @azure/monitor-opentelemetry @opentelemetry/api
 ```bash
 AZURE_AI_PROJECT_ENDPOINT=https://<resource>.services.ai.azure.com/api/projects/<project>
 MODEL_DEPLOYMENT_NAME=gpt-4o
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ## Authentication
@@ -39,6 +40,7 @@ import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identi
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 
 const client = new AIProjectClient(

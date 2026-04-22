@@ -30,6 +30,7 @@ npm install @azure/web-pubsub-express
 ```bash
 WEBPUBSUB_CONNECTION_STRING=Endpoint=https://<resource>.webpubsub.azure.com;AccessKey=<key>;Version=1.0;
 WEBPUBSUB_ENDPOINT=https://<resource>.webpubsub.azure.com
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ## Server-Side: WebPubSubServiceClient
@@ -43,6 +44,7 @@ import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identi
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 
 // Connection string

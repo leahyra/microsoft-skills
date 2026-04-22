@@ -30,6 +30,7 @@ EVENTHUB_NAMESPACE=<namespace>.servicebus.windows.net
 EVENTHUB_NAME=my-eventhub
 STORAGE_ACCOUNT_NAME=<storage-account>
 STORAGE_CONTAINER_NAME=checkpoints
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ## Authentication
@@ -43,6 +44,7 @@ const eventHubName = process.env.EVENTHUB_NAME!;
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 
 // Producer

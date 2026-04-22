@@ -25,6 +25,7 @@ npm install @azure/keyvault-keys @azure/identity
 KEY_VAULT_URL=https://<vault-name>.vault.azure.net
 # Or
 AZURE_KEYVAULT_NAME=<vault-name>
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ## Authentication
@@ -36,6 +37,7 @@ import { KeyClient, CryptographyClient } from "@azure/keyvault-keys";
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 const vaultUrl = `https://${process.env.AZURE_KEYVAULT_NAME}.vault.azure.net`;
 

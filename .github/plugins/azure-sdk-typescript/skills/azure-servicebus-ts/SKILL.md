@@ -25,6 +25,7 @@ SERVICEBUS_NAMESPACE=<namespace>.servicebus.windows.net
 SERVICEBUS_QUEUE_NAME=my-queue
 SERVICEBUS_TOPIC_NAME=my-topic
 SERVICEBUS_SUBSCRIPTION_NAME=my-subscription
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ## Authentication
@@ -36,6 +37,7 @@ import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identi
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 
 const fullyQualifiedNamespace = process.env.SERVICEBUS_NAMESPACE!;

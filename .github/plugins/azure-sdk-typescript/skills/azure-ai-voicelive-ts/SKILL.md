@@ -35,6 +35,7 @@ AZURE_VOICELIVE_ENDPOINT=https://<resource>.cognitiveservices.azure.com
 AZURE_VOICELIVE_API_KEY=<your-api-key>
 # Optional: Logging
 AZURE_LOG_LEVEL=info
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ## Authentication
@@ -48,6 +49,7 @@ import { VoiceLiveClient } from "@azure/ai-voicelive";
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 const endpoint = "https://your-resource.cognitiveservices.azure.com";
 

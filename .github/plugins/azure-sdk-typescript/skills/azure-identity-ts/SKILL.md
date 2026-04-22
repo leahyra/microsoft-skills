@@ -29,6 +29,7 @@ npm install @azure/identity-vscode
 AZURE_TENANT_ID=<tenant-id>
 AZURE_CLIENT_ID=<client-id>
 AZURE_CLIENT_SECRET=<client-secret>
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ### Service Principal (Certificate)
@@ -56,6 +57,7 @@ import { DefaultAzureCredential, ManagedIdentityCredential } from "@azure/identi
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 
 // Use with any Azure SDK client

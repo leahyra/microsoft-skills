@@ -28,6 +28,7 @@ npm install @azure-rest/ai-translation-document @azure/identity
 TRANSLATOR_ENDPOINT=https://api.cognitive.microsofttranslator.com
 TRANSLATOR_SUBSCRIPTION_KEY=<your-api-key>
 TRANSLATOR_REGION=<your-region>  # e.g., westus, eastus
+AZURE_TOKEN_CREDENTIALS=prod # Required only if DefaultAzureCredential is used in production
 ```
 
 ## Text Translation Client
@@ -163,6 +164,7 @@ const endpoint = "https://<translator>.cognitiveservices.azure.com";
 // Local dev: DefaultAzureCredential. Production: set AZURE_TOKEN_CREDENTIALS=prod or AZURE_TOKEN_CREDENTIALS=<specific_credential>
 const credential = new DefaultAzureCredential({requiredEnvVars: ["AZURE_TOKEN_CREDENTIALS"]});
 // Or use a specific credential directly in production:
+// See https://learn.microsoft.com/javascript/api/overview/azure/identity-readme?view=azure-node-latest#credential-classes
 // const credential = new ManagedIdentityCredential();
 
 // TokenCredential
