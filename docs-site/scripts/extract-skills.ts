@@ -60,6 +60,7 @@ function findSymlinkInfo(
   skillName: string,
   skillsDir: string
 ): { lang: Skill["lang"]; category: string } | null {
+  if (!fs.existsSync(skillsDir)) return null;
   const langDirs = fs.readdirSync(skillsDir);
 
   for (const langDir of langDirs) {
