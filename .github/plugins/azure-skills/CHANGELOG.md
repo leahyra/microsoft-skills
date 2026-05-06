@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.33
+
+- feature: Feature/azure compute/enablemachinemanagement ([#2069](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2069))
+
 ## 1.1.30
 
 - fix(app-service-templates): address review feedback — discoverability, auth IaC, token refresh, source splits ([#1635](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/1635))
