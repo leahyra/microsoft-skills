@@ -81,6 +81,52 @@ class AsyncConfigurationClient:
     pass
 ```
 
+### Sync vs Async: Pick One, Don't Mix
+
+**Rule:** Within a single module, script, or code path, use **either** the sync client **or** the async client — never both.
+
+- Sync clients live in `azure.<service>` (e.g., `azure.ai.projects.AIProjectClient`).
+- Async clients live in `azure.<service>.aio` (e.g., `azure.ai.projects.aio.AIProjectClient`).
+- Mixing sync calls inside an `async def` (or awaiting inside a sync function) blocks the event loop, breaks context managers, and produces subtle concurrency bugs.
+
+```python
+# Setup used by the snippets below
+endpoint = "https://example.services.ai.azure.com/api/projects/example"
+
+# ✅ Good — all sync
+from azure.ai.projects import AIProjectClient
+from azure.identity import DefaultAzureCredential
+
+with AIProjectClient(endpoint=endpoint, credential=DefaultAzureCredential()) as client:
+    agent = client.agents.get_agent("agent-id")
+
+# ✅ Good — all async
+from azure.ai.projects.aio import AIProjectClient as AsyncAIProjectClient
+from azure.identity.aio import DefaultAzureCredential as AsyncDefaultAzureCredential
+
+async def run_async():
+    async with AsyncDefaultAzureCredential() as credential, \
+               AsyncAIProjectClient(endpoint=endpoint, credential=credential) as client:
+        agent = await client.agents.get_agent("agent-id")
+
+# ❌ Bad — sync client (azure.ai.projects) called from an async function:
+# the synchronous HTTP call blocks the event loop for the entire request.
+async def run_bad():
+    from azure.ai.projects import AIProjectClient  # sync client lives in azure.<service>
+    with AIProjectClient(endpoint=endpoint, credential=DefaultAzureCredential()) as client:
+        client.agents.get_agent("agent-id")  # ← blocking call inside `async def`
+
+# ❌ Bad — async client (azure.<service>.aio) paired with sync DefaultAzureCredential:
+# the async client expects an async credential from azure.identity.aio.
+async def run_also_bad():
+    from azure.identity import DefaultAzureCredential          # sync
+    from azure.ai.projects.aio import AIProjectClient          # async
+    async with AIProjectClient(endpoint=endpoint, credential=DefaultAzureCredential()) as client:
+        await client.agents.get_agent("agent-id")  # credential.get_token() will block
+```
+
+When writing a skill, pick one model based on the target runtime (FastAPI/async framework → async; scripts/CLIs → sync) and make every example in the skill consistent with that choice.
+
 ### Pagination: ItemPaged / AsyncItemPaged
 
 ```python
@@ -124,17 +170,32 @@ async_poller = await async_client.begin_create_resource(config)
 result = await async_poller.result()
 ```
 
-### Context Managers
+### Context Managers (Strongly Preferred)
+
+**Always prefer context managers (`with` / `async with`) over manually constructing and closing clients.** They guarantee the underlying HTTP transport and credential sessions are closed, even on exceptions, and make the sync/async choice explicit at the call site.
 
 ```python
-# Recommended pattern
+# ✅ Preferred — sync
 with ConfigurationClient(endpoint, credential) as client:
     setting = client.get_setting("key")
 
-# Async
-async with AsyncConfigurationClient(endpoint, credential) as client:
+# ✅ Preferred — async (also wrap the async credential)
+from azure.identity.aio import DefaultAzureCredential
+
+async with DefaultAzureCredential() as credential, \
+           AsyncConfigurationClient(endpoint, credential) as client:
     setting = await client.get_setting("key")
+
+# ⚠️ Only acceptable when the client lifetime spans the whole app
+# (e.g., FastAPI lifespan, long-running service). Close it explicitly.
+client = ConfigurationClient(endpoint, credential)
+try:
+    setting = client.get_setting("key")
+finally:
+    client.close()  # or `await client.close()` for async clients
 ```
+
+Skills should show the context-manager form first. Only introduce the explicit `close()` pattern when the scenario genuinely requires a long-lived client (e.g., dependency-injected singletons), and always pair it with `try/finally` or a framework lifecycle hook.
 
 ### Error Handling
 
