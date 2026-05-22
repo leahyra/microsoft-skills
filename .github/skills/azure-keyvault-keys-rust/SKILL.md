@@ -197,11 +197,12 @@ For Entra ID auth, assign one of these roles:
 
 ## Best Practices
 
-1. **Use `DeveloperToolsCredential`** for local dev, **`ManagedIdentityCredential`** for production — the Rust SDK does not have `DefaultAzureCredential`
-2. **Never hardcode credentials** — use environment variables or managed identity
-3. **Use `..Default::default()`** with `#[allow(clippy::needless_update)]` for model struct updates
-4. **Use `ResourceExt`** to extract key name/version from key IDs
-5. **Reuse clients** — `KeyClient` is thread-safe; create once, share across tasks
+1. **Use `DeveloperToolsCredential` for local development and `ManagedIdentityCredential` for production.** The Rust SDK does not support `DefaultAzureCredential`, so explicitly use the appropriate credential in each environment.
+2. **Use `RequestContent::from()` for sign/encrypt payloads and `.into_model()` for key responses.** Wrap operation inputs with `RequestContent::from()` and convert HTTP responses with `.into_model()?`.
+3. **Assign appropriate RBAC roles for Entra ID auth.** For production authentication using Entra ID, ensure the identity has the necessary RBAC role assigned (e.g., "Key Vault Crypto User" for cryptographic operations).
+4. **Always verify package versions using crates.io.** Before using a package, check its version on [crates.io](https://crates.io/) to ensure you are using a stable and supported release.
+5. **Never hardcode credentials** — use environment variables or managed identity
+6. **Reuse clients** — `KeyClient` is thread-safe; create once, share across tasks
 
 ## Reference Links
 

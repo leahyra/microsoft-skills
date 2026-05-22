@@ -138,11 +138,12 @@ For Entra ID auth, assign one of these roles:
 
 ## Best Practices
 
-1. **Use `DeveloperToolsCredential`** for local dev, **`ManagedIdentityCredential`** for production — the Rust SDK does not have `DefaultAzureCredential`
-2. **Never hardcode credentials** — use environment variables or managed identity
-3. **Use batching** — `create_batch` + `send_batch` for throughput optimization
-4. **Handle errors per event** — match on `Ok`/`Err` in the event stream
-5. **Specify start position** — use `StartLocation::Earliest` or `StartLocation::Latest` to control where consumption begins
+1. **Use `DeveloperToolsCredential` for local development and `ManagedIdentityCredential` for production.** The Rust SDK does not support `DefaultAzureCredential`, so explicitly use the appropriate credential in each environment.
+2. **Use batching for throughput optimization.** Call `create_batch()` to build batches of events, then send with `send_batch()` instead of sending individual events.
+3. **Assign appropriate RBAC roles for Entra ID auth.** For production authentication using Entra ID, ensure the identity has the necessary RBAC role assigned (e.g., "Azure Event Hubs Data Sender" for sending, "Azure Event Hubs Data Receiver" for receiving).
+4. **Always verify package versions using crates.io.** Before using a package, check its version on [crates.io](https://crates.io/) to ensure you are using a stable and supported release.
+5. **Never hardcode credentials** — use environment variables or managed identity
+6. **Handle errors per event** — match on `Ok`/`Err` in the event stream to handle per-event failures gracefully
 
 ## Reference Links
 

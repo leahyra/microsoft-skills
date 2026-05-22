@@ -186,11 +186,12 @@ For Entra ID auth, assign one of these roles to the identity:
 
 ## Best Practices
 
-1. **Use `DeveloperToolsCredential`** for local dev, **`ManagedIdentityCredential`** for production — the Rust SDK does not have `DefaultAzureCredential`
-2. **Never hardcode credentials** — use environment variables or managed identity
-3. **Use `RequestContent::from()`** to wrap upload data (bytes, strings, or streams)
-4. **Assign RBAC roles** — ensure "Storage Blob Data Contributor" for write access
-5. **Reuse clients** — clients are thread-safe; create once, share across tasks
+1. **Use `DeveloperToolsCredential` for local development and `ManagedIdentityCredential` for production.** The Rust SDK does not support `DefaultAzureCredential`, so explicitly use the appropriate credential in each environment.
+2. **Use `RequestContent::from()` to wrap upload data.** When uploading data (e.g., blobs), wrap the content in `RequestContent::from(your_data)` to ensure proper handling by the SDK.
+3. **Assign appropriate RBAC roles for Entra ID auth.** For production authentication using Entra ID, ensure the identity has the necessary RBAC role assigned (e.g., "Storage Blob Data Contributor" for blob write access).
+4. **Always verify package versions using crates.io.** Before using a package, check its version on [crates.io](https://crates.io/) to ensure you are using a stable and supported release.
+5. **Never hardcode credentials** — use environment variables or managed identity
+6. **Reuse clients** — clients are thread-safe; create once, share across tasks
 
 ## Reference Links
 
