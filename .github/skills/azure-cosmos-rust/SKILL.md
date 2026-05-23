@@ -56,11 +56,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Client Hierarchy
 
-| Client            | Purpose                   | Access                                  |
-| ----------------- | ------------------------- | --------------------------------------- |
+| Client            | Purpose                   | Access                                          |
+| ----------------- | ------------------------- | ----------------------------------------------- |
 | `CosmosClient`    | Account-level operations  | `CosmosClient::builder().build(account).await?` |
-| `DatabaseClient`  | Database operations       | `client.database_client("db")`          |
-| `ContainerClient` | Container/item operations | `database.container_client("c").await` |
+| `DatabaseClient`  | Database operations       | `client.database_client("db")`                  |
+| `ContainerClient` | Container/item operations | `database.container_client("c").await`          |
 
 ## Core Workflow
 
@@ -123,10 +123,12 @@ For Entra ID auth, assign one of these built-in Cosmos DB roles:
 
 ## Best Practices
 
-1. **Use `DeveloperToolsCredential`** for local dev, **`ManagedIdentityCredential`** for production — the Rust SDK does not have `DefaultAzureCredential`
-2. **Never hardcode credentials** — use environment variables or managed identity
-3. **Reuse `CosmosClient`** — clients are thread-safe; create once, share across tasks
-4. **Always specify partition key** for item operations — Cosmos DB requires it for all CRUD
+1. **Use `DeveloperToolsCredential` for local development and `ManagedIdentityCredential` for production.** The Rust SDK does not support `DefaultAzureCredential`, so explicitly use the appropriate credential in each environment.
+2. **Always specify partition key for item operations.** Cosmos DB requires the partition key for all CRUD operations; include it in every `create_item()`, `read_item()`, `replace_item()`, and `delete_item()` call.
+3. **Assign appropriate RBAC roles for Entra ID auth.** For production authentication using Entra ID, ensure the identity has the necessary RBAC role assigned (e.g., "Cosmos DB Built-in Data Contributor" for read/write).
+4. **Always verify package versions using crates.io.** Before using a package, check its version on [crates.io](https://crates.io/) to ensure you are using a stable and supported release.
+5. **Never hardcode credentials** — use environment variables or managed identity
+6. **Reuse `CosmosClient`** — clients are thread-safe; create once, share across tasks
 
 ## Reference Links
 

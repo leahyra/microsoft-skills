@@ -129,7 +129,6 @@ scenarios:
       List all certificates in an Azure Key Vault using the Rust SDK.
     expected_patterns:
       - "list_certificate_properties"
-      - "into_stream"
       - "try_next"
     forbidden_patterns:
       - "get_certificate"
@@ -140,7 +139,7 @@ scenarios:
       use azure_security_keyvault_certificates::ResourceExt;
       use futures::TryStreamExt;
 
-      let mut pager = client.list_certificate_properties(None)?.into_stream();
+      let mut pager = client.list_certificate_properties(None)?;
       while let Some(cert) = pager.try_next().await? {
           let name = cert.resource_id()?.name;
           println!("Certificate: {}", name);
