@@ -20,9 +20,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
           cache-dependency-path: tests/pnpm-lock.yaml
+
+      - name: Verify Rust skill links are in sync
+        run: |
+          python .github/scripts/sync_skill_links.py --plugin azure-sdk-rust --check
 
       - name: Install dependencies
         working-directory: tests
@@ -46,10 +50,10 @@ jobs:
           HARNESS_EXIT=$?
           pnpm harness --all --mock --output json --output-file results.json
           set -e
-          
+
           # Store result for later steps
           echo "exit_code=$HARNESS_EXIT" >> $GITHUB_OUTPUT
-          
+
           # Always exit 0 here so we can write summary
           exit 0
 
@@ -62,14 +66,14 @@ jobs:
           else
             echo "⚠️ No results file found" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "ℹ️ This is a **smoke test** using mock responses for fast CI feedback." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Full evaluation with real Copilot SDK runs **nightly at 2 AM UTC** via [Skill Evaluation](../actions/workflows/skill-evaluation.yml)." >> $GITHUB_STEP_SUMMARY
-          
+
           if [ "${{ steps.harness.outputs.exit_code }}" != "0" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "⚠️ **Some skills have failing scenarios.** See details above." >> $GITHUB_STEP_SUMMARY

@@ -667,6 +667,14 @@ pnpm test
 
 See [`tests/README.md`](tests/README.md) for instructions on adding acceptance criteria and scenarios for new skills.
 
+### Vally Evaluations
+
+Vally evaluation specs can live alongside harness scenarios under `tests/scenarios/<skill-name>/vally/`.
+
+- Workflow: [`Vally Evaluation`](.github/workflows/vally-evaluation.yml)
+- Trigger: changes under `tests/scenarios/**/vally/**` (plus manual runs via Actions)
+- Scope: lints resolved eval specs and runs evals when `COPILOT_TOKEN` is available
+
 ### Ralph Loop & Sensei Patterns
 
 The test harness implements iterative quality improvement patterns inspired by [Sensei](https://github.com/microsoft/GitHub-Copilot-for-Azure/tree/main/.github/skills/sensei):

@@ -173,6 +173,42 @@ pnpm harness <skill-name> --mock --verbose
 pnpm test
 ```
 
+## Vally Evals (Coexisting Convention)
+
+Use this convention so Vally evals can live beside harness scenarios without changing existing harness behavior.
+
+### Folder Layout
+
+```text
+tests/
+  scenarios/
+    <skill-name>/
+      acceptance-criteria.md
+      scenarios.yaml
+      vally/
+        eval.yaml                 # Canonical Vally entrypoint for this skill
+        eval-nobuild.yaml         # Optional variants
+        tools/                    # Program graders and helper scripts
+        workspace/                # Seed workspace files for Vally runs
+```
+
+### Rules
+
+1. Keep Vally files inside `tests/scenarios/<skill-name>/vally/` so ownership stays per skill.
+2. Keep harness files unchanged: `acceptance-criteria.md` and `scenarios.yaml` remain the CI source for existing workflows.
+3. Use `eval.yaml` as the canonical Vally file and keep alternatives (`eval-old.yaml`, `eval-nobuild.yaml`) optional.
+4. In Vally specs, set skill paths relative to `tests/scenarios/<skill-name>/vally/`.
+
+### Path Example
+
+For `tests/scenarios/azure-storage-blob-rust/vally/eval.yaml`, reference the skill as:
+
+```yaml
+environment:
+  skills:
+    - ../../../../.github/skills/azure-storage-blob-rust
+```
+
 ## Evaluation Scoring
 
 | Factor | Impact |

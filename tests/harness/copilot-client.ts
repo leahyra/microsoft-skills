@@ -41,7 +41,7 @@ export class MockCopilotClient implements CopilotClient {
     prompt: string,
     skillName: string,
     config?: GenerationConfig,
-    scenarioName?: string
+    scenarioName?: string,
   ): Promise<GenerationResult> {
     // If scenarioName is provided, use it to look up the response
     if (scenarioName && this.mockResponses.has(scenarioName)) {
@@ -84,9 +84,11 @@ export class MockCopilotClient implements CopilotClient {
  */
 export class SkillCopilotClient implements CopilotClient {
   private static readonly SKILLS_DIR = ".github/skills";
+  private static readonly PLUGINS_DIR = ".github/plugins";
 
   private basePath: string;
   private skillsDir: string;
+  private pluginsDir: string;
   private useMock: boolean;
   private mockClient: MockCopilotClient;
   private skillCache: Map<string, string> = new Map();
@@ -94,8 +96,42 @@ export class SkillCopilotClient implements CopilotClient {
   constructor(basePath?: string, useMock: boolean = false) {
     this.basePath = basePath ?? process.cwd();
     this.skillsDir = join(this.basePath, SkillCopilotClient.SKILLS_DIR);
+    this.pluginsDir = join(this.basePath, SkillCopilotClient.PLUGINS_DIR);
     this.useMock = useMock || !checkCopilotAvailable();
     this.mockClient = new MockCopilotClient();
+  }
+
+  /**
+   * Resolve a skill directory from either .github/skills/<name>
+   * or .github/plugins/{plugin}/skills/<name>.
+   */
+  private resolveSkillDir(skillName: string): string | null {
+    const directPath = join(this.skillsDir, skillName);
+    if (existsSync(directPath)) {
+      return directPath;
+    }
+
+    if (existsSync(this.pluginsDir)) {
+      const pluginEntries = readdirSync(this.pluginsDir, {
+        withFileTypes: true,
+      });
+      for (const entry of pluginEntries) {
+        if (!entry.isDirectory()) {
+          continue;
+        }
+        const candidate = join(
+          this.pluginsDir,
+          entry.name,
+          "skills",
+          skillName,
+        );
+        if (existsSync(candidate)) {
+          return candidate;
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -106,8 +142,8 @@ export class SkillCopilotClient implements CopilotClient {
       return this.skillCache.get(skillName)!;
     }
 
-    const skillDir = join(this.skillsDir, skillName);
-    if (!existsSync(skillDir)) {
+    const skillDir = this.resolveSkillDir(skillName);
+    if (!skillDir) {
       throw new Error(`Skill not found: ${skillName}`);
     }
 
@@ -123,9 +159,7 @@ export class SkillCopilotClient implements CopilotClient {
     // Load reference files
     const refsDir = join(skillDir, "references");
     if (existsSync(refsDir)) {
-      const refFiles = readdirSync(refsDir).filter(
-        (f) => f.endsWith(".md")
-      );
+      const refFiles = readdirSync(refsDir).filter((f) => f.endsWith(".md"));
       for (const refFile of refFiles) {
         const refPath = join(refsDir, refFile);
         const stem = refFile.replace(/\.md$/, "");
@@ -146,7 +180,7 @@ export class SkillCopilotClient implements CopilotClient {
     prompt: string,
     skillName: string,
     config?: GenerationConfig,
-    scenarioName?: string
+    scenarioName?: string,
   ): Promise<GenerationResult> {
     const cfg = config ?? DEFAULT_GENERATION_CONFIG;
 
@@ -189,7 +223,7 @@ Generate only code. Follow the patterns from the skill documentation exactly.
     prompt: string,
     skillName: string,
     skillContext: string,
-    config: GenerationConfig
+    config: GenerationConfig,
   ): Promise<GenerationResult> {
     const startTime = Date.now();
     const fullPrompt = this.buildPrompt(prompt, skillContext);
@@ -209,7 +243,7 @@ Generate only code. Follow the patterns from the skill documentation exactly.
       try {
         const response = await session.sendAndWait(
           { prompt: fullPrompt },
-          120000
+          120000,
         );
 
         rawResponse = response?.data?.content ?? "";
@@ -342,7 +376,7 @@ export function checkCopilotCli(): boolean {
  */
 export function createClient(
   basePath?: string,
-  useMock: boolean = false
+  useMock: boolean = false,
 ): SkillCopilotClient {
   return new SkillCopilotClient(basePath, useMock);
 }

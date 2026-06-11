@@ -1,14 +1,50 @@
 # Azure Key Vault Certificates SDK for Rust Acceptance Criteria
 
 **Crate**: `azure_security_keyvault_certificates`
-**Repository**: https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/keyvault/azure_security_keyvault_certificates
+**Repository**: <https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/keyvault/azure_security_keyvault_certificates>
 **Purpose**: Skill testing acceptance criteria for validating generated Rust code correctness
+
+---
+
+## 0. Dependency Management Gate (Required)
+
+### 0.1 ✅ CORRECT: Use cargo commands for dependency changes
+
+```sh
+cargo add azure_security_keyvault_certificates azure_identity tokio futures
+cargo add azure_core
+cargo remove azure_core
+```
+
+### 0.2 ✅ CORRECT: Add `azure_core` only for direct `azure_core` imports
+
+```rust
+use azure_core::base64;
+use azure_security_keyvault_certificates::CertificateClient;
+// Direct azure_core import is used, so `azure_core` should be a direct dependency.
+```
+
+### 0.3 ❌ INCORRECT: Manual Cargo.toml dependency edits in generated guidance
+
+```toml
+# WRONG in generated guidance - use `cargo add` / `cargo remove` commands instead
+[dependencies]
+azure_core = "*"
+```
+
+### 0.4 ❌ INCORRECT: Requiring `azure_core` when no direct `azure_core` imports exist
+
+```rust
+use azure_security_keyvault_certificates::CertificateClient;
+// No direct azure_core import here, so forcing direct azure_core dependency is unnecessary.
+```
 
 ---
 
 ## 1. Correct Import Patterns
 
 ### 1.1 ✅ CORRECT: Client and Model Imports
+
 ```rust
 use azure_security_keyvault_certificates::CertificateClient;
 use azure_security_keyvault_certificates::models::{
@@ -26,6 +62,7 @@ use azure_identity::DeveloperToolsCredential;
 ## 2. Client Creation
 
 ### 2.1 ✅ CORRECT: CertificateClient with Entra ID
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_security_keyvault_certificates::CertificateClient;
@@ -43,6 +80,7 @@ let client = CertificateClient::new(
 ## 3. Certificate Operations
 
 ### 3.1 ✅ CORRECT: Get Certificate
+
 ```rust
 use azure_core::base64;
 
@@ -58,6 +96,7 @@ println!(
 ```
 
 ### 3.2 ✅ CORRECT: Create Self-Signed Certificate
+
 ```rust
 use azure_security_keyvault_certificates::models::{
     CreateCertificateParameters, CertificatePolicy,
@@ -87,6 +126,7 @@ let operation = client
 ```
 
 ### 3.3 ✅ CORRECT: Import Certificate
+
 ```rust
 use azure_security_keyvault_certificates::models::ImportCertificateParameters;
 
@@ -103,6 +143,7 @@ let certificate = client
 ```
 
 ### 3.4 ✅ CORRECT: List Certificates with Paging
+
 ```rust
 use azure_security_keyvault_certificates::ResourceExt;
 use futures::TryStreamExt;
@@ -115,6 +156,7 @@ while let Some(cert) = pager.try_next().await? {
 ```
 
 ### 3.5 ✅ CORRECT: Delete Certificate
+
 ```rust
 client.delete_certificate("certificate-name", None).await?;
 ```
@@ -122,6 +164,7 @@ client.delete_certificate("certificate-name", None).await?;
 ### 3.6 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Not using into_model
+
 ```rust
 // WRONG - must call into_model() to get the certificate
 let cert = client.get_certificate("name", None).await?;
@@ -132,6 +175,7 @@ let cert = client.get_certificate("name", None).await?;
 ## 4. Certificate Policy
 
 ### 4.1 ✅ CORRECT: Self-Signed Issuer
+
 ```rust
 let issuer = IssuerParameters {
     name: Some("Self".into()),
@@ -140,6 +184,7 @@ let issuer = IssuerParameters {
 ```
 
 ### 4.2 ✅ CORRECT: X509 Properties
+
 ```rust
 let x509_props = X509CertificateProperties {
     subject: Some("CN=example.com".into()),
@@ -152,11 +197,13 @@ let x509_props = X509CertificateProperties {
 ## 5. Best Practices
 
 ### 5.1 ✅ CORRECT: Use into_model for responses
+
 ```rust
 let certificate = response.into_model()?;
 ```
 
 ### 5.2 ✅ CORRECT: Use ResourceExt for extracting names
+
 ```rust
 use azure_security_keyvault_certificates::ResourceExt;
 
@@ -164,6 +211,7 @@ let name = cert.resource_id()?.name;
 ```
 
 ### 5.3 ✅ CORRECT: Use base64 for thumbprint display
+
 ```rust
 use azure_core::base64;
 

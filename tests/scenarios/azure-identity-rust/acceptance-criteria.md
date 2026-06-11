@@ -1,14 +1,50 @@
 # Azure Identity SDK for Rust Acceptance Criteria
 
 **Crate**: `azure_identity`
-**Repository**: https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/identity/azure_identity
+**Repository**: <https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/identity/azure_identity>
 **Purpose**: Skill testing acceptance criteria for validating generated Rust code correctness
+
+---
+
+## 0. Dependency Management Gate (Required)
+
+### 0.1 ✅ CORRECT: Use cargo commands for dependency changes
+
+```sh
+cargo add azure_identity tokio
+cargo add azure_core
+cargo remove azure_core
+```
+
+### 0.2 ✅ CORRECT: Add `azure_core` only for direct `azure_core` imports
+
+```rust
+use azure_core::credentials::TokenCredential;
+use azure_identity::DeveloperToolsCredential;
+// Direct azure_core import is used, so `azure_core` should be a direct dependency.
+```
+
+### 0.3 ❌ INCORRECT: Manual Cargo.toml dependency edits in generated guidance
+
+```toml
+# WRONG in generated guidance - use `cargo add` / `cargo remove` commands instead
+[dependencies]
+azure_core = "*"
+```
+
+### 0.4 ❌ INCORRECT: Requiring `azure_core` when no direct `azure_core` imports exist
+
+```rust
+use azure_identity::DeveloperToolsCredential;
+// No direct azure_core import here, so forcing direct azure_core dependency is unnecessary.
+```
 
 ---
 
 ## 1. Correct Import Patterns
 
 ### 1.1 ✅ CORRECT: Credential Imports
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_identity::ManagedIdentityCredential;
@@ -21,6 +57,7 @@ use azure_identity::WorkloadIdentityCredential;
 ### 1.2 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: DefaultAzureCredential (doesn't exist in Rust SDK)
+
 ```rust
 // WRONG - use DeveloperToolsCredential instead
 use azure_identity::DefaultAzureCredential;
@@ -31,6 +68,7 @@ use azure_identity::DefaultAzureCredential;
 ## 2. DeveloperToolsCredential
 
 ### 2.1 ✅ CORRECT: Basic DeveloperToolsCredential
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 
@@ -38,6 +76,7 @@ let credential = DeveloperToolsCredential::new(None)?;
 ```
 
 ### 2.2 ✅ CORRECT: Using with SecretClient
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_security_keyvault_secrets::SecretClient;
@@ -53,6 +92,7 @@ let client = SecretClient::new(
 ### 2.3 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Hardcoded credentials
+
 ```rust
 // WRONG - never hardcode credentials
 let secret = "my-secret-value";
@@ -63,6 +103,7 @@ let secret = "my-secret-value";
 ## 3. ManagedIdentityCredential
 
 ### 3.1 ✅ CORRECT: System-assigned Managed Identity
+
 ```rust
 use azure_identity::ManagedIdentityCredential;
 
@@ -70,6 +111,7 @@ let credential = ManagedIdentityCredential::new(None)?;
 ```
 
 ### 3.2 ✅ CORRECT: User-assigned Managed Identity
+
 ```rust
 use azure_identity::{ManagedIdentityCredential, ManagedIdentityCredentialOptions};
 
@@ -85,6 +127,7 @@ let credential = ManagedIdentityCredential::new(Some(options))?;
 ## 4. ClientSecretCredential
 
 ### 4.1 ✅ CORRECT: Service Principal Authentication
+
 ```rust
 use azure_identity::ClientSecretCredential;
 
@@ -99,6 +142,7 @@ let credential = ClientSecretCredential::new(
 ### 4.2 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Hardcoded secrets in code
+
 ```rust
 // WRONG - use environment variables instead
 let credential = ClientSecretCredential::new(
@@ -114,6 +158,7 @@ let credential = ClientSecretCredential::new(
 ## 5. Best Practices
 
 ### 5.1 ✅ CORRECT: Clone credentials for multiple clients
+
 ```rust
 let credential = DeveloperToolsCredential::new(None)?;
 let client1 = SecretClient::new(url, credential.clone(), None)?;
@@ -121,6 +166,7 @@ let client2 = KeyClient::new(url, credential.clone(), None)?;
 ```
 
 ### 5.2 ✅ CORRECT: Use environment variables
+
 ```rust
 use std::env;
 

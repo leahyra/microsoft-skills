@@ -1,14 +1,50 @@
 # Azure Key Vault Keys SDK for Rust Acceptance Criteria
 
 **Crate**: `azure_security_keyvault_keys`
-**Repository**: https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/keyvault/azure_security_keyvault_keys
+**Repository**: <https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/keyvault/azure_security_keyvault_keys>
 **Purpose**: Skill testing acceptance criteria for validating generated Rust code correctness
+
+---
+
+## 0. Dependency Management Gate (Required)
+
+### 0.1 ✅ CORRECT: Use cargo commands for dependency changes
+
+```sh
+cargo add azure_security_keyvault_keys azure_identity tokio futures
+cargo add azure_core
+cargo remove azure_core
+```
+
+### 0.2 ✅ CORRECT: Add `azure_core` only for direct `azure_core` imports
+
+```rust
+use azure_core::error::ErrorKind;
+use azure_security_keyvault_keys::KeyClient;
+// Direct azure_core import is used, so `azure_core` should be a direct dependency.
+```
+
+### 0.3 ❌ INCORRECT: Manual Cargo.toml dependency edits in generated guidance
+
+```toml
+# WRONG in generated guidance - use `cargo add` / `cargo remove` commands instead
+[dependencies]
+azure_core = "*"
+```
+
+### 0.4 ❌ INCORRECT: Requiring `azure_core` when no direct `azure_core` imports exist
+
+```rust
+use azure_security_keyvault_keys::KeyClient;
+// No direct azure_core import here, so forcing direct azure_core dependency is unnecessary.
+```
 
 ---
 
 ## 1. Correct Import Patterns
 
 ### 1.1 ✅ CORRECT: Client and Model Imports
+
 ```rust
 use azure_security_keyvault_keys::KeyClient;
 use azure_security_keyvault_keys::models::{CreateKeyParameters, KeyType, CurveName};
@@ -21,6 +57,7 @@ use azure_identity::DeveloperToolsCredential;
 ## 2. Client Creation
 
 ### 2.1 ✅ CORRECT: KeyClient with Entra ID
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_security_keyvault_keys::KeyClient;
@@ -38,6 +75,7 @@ let client = KeyClient::new(
 ## 3. Key Operations
 
 ### 3.1 ✅ CORRECT: Get Key
+
 ```rust
 let key = client
     .get_key("key-name", None)
@@ -48,6 +86,7 @@ println!("Key ID: {:?}", key.key.as_ref().map(|k| &k.kid));
 ```
 
 ### 3.2 ✅ CORRECT: Create RSA Key
+
 ```rust
 use azure_security_keyvault_keys::models::{CreateKeyParameters, KeyType};
 
@@ -64,6 +103,7 @@ let key = client
 ```
 
 ### 3.3 ✅ CORRECT: Create EC Key
+
 ```rust
 use azure_security_keyvault_keys::models::{CreateKeyParameters, KeyType, CurveName};
 
@@ -80,6 +120,7 @@ let key = client
 ```
 
 ### 3.4 ✅ CORRECT: List Keys with Paging
+
 ```rust
 use azure_security_keyvault_keys::ResourceExt;
 use futures::TryStreamExt;
@@ -92,11 +133,13 @@ while let Some(key) = pager.try_next().await? {
 ```
 
 ### 3.5 ✅ CORRECT: Delete Key
+
 ```rust
 client.delete_key("key-name", None).await?;
 ```
 
 ### 3.6 ✅ CORRECT: Backup Key
+
 ```rust
 let backup = client.backup_key("key-name", None).await?;
 ```
@@ -104,6 +147,7 @@ let backup = client.backup_key("key-name", None).await?;
 ### 3.7 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Not using into_model
+
 ```rust
 // WRONG - must call into_model() to get the key
 let key = client.get_key("name", None).await?;
@@ -114,6 +158,7 @@ let key = client.get_key("name", None).await?;
 ## 4. Key Types
 
 ### 4.1 ✅ CORRECT: Supported Key Types
+
 ```rust
 use azure_security_keyvault_keys::models::KeyType;
 
@@ -124,6 +169,7 @@ KeyType::EcHsm    // HSM-protected EC keys
 ```
 
 ### 4.2 ✅ CORRECT: Curve Names for EC Keys
+
 ```rust
 use azure_security_keyvault_keys::models::CurveName;
 
@@ -137,11 +183,13 @@ CurveName::P521   // NIST P-521
 ## 5. Best Practices
 
 ### 5.1 ✅ CORRECT: Use into_model for responses
+
 ```rust
 let key = response.into_model()?;
 ```
 
 ### 5.2 ✅ CORRECT: Use ResourceExt for extracting names
+
 ```rust
 use azure_security_keyvault_keys::ResourceExt;
 
@@ -149,6 +197,7 @@ let name = key.resource_id()?.name;
 ```
 
 ### 5.3 ✅ CORRECT: Use HSM keys for sensitive workloads
+
 ```rust
 let params = CreateKeyParameters {
     kty: KeyType::RsaHsm,  // Hardware-protected

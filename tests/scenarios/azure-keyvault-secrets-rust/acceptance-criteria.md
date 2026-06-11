@@ -1,14 +1,50 @@
 # Azure Key Vault Secrets SDK for Rust Acceptance Criteria
 
 **Crate**: `azure_security_keyvault_secrets`
-**Repository**: https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/keyvault/azure_security_keyvault_secrets
+**Repository**: <https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/keyvault/azure_security_keyvault_secrets>
 **Purpose**: Skill testing acceptance criteria for validating generated Rust code correctness
+
+---
+
+## 0. Dependency Management Gate (Required)
+
+### 0.1 ✅ CORRECT: Use cargo commands for dependency changes
+
+```sh
+cargo add azure_security_keyvault_secrets azure_identity tokio futures
+cargo add azure_core
+cargo remove azure_core
+```
+
+### 0.2 ✅ CORRECT: Add `azure_core` only for direct `azure_core` imports
+
+```rust
+use azure_core::error::ErrorKind;
+use azure_security_keyvault_secrets::SecretClient;
+// Direct azure_core import is used, so `azure_core` should be a direct dependency.
+```
+
+### 0.3 ❌ INCORRECT: Manual Cargo.toml dependency edits in generated guidance
+
+```toml
+# WRONG in generated guidance - use `cargo add` / `cargo remove` commands instead
+[dependencies]
+azure_core = "*"
+```
+
+### 0.4 ❌ INCORRECT: Requiring `azure_core` when no direct `azure_core` imports exist
+
+```rust
+use azure_security_keyvault_secrets::SecretClient;
+// No direct azure_core import here, so forcing direct azure_core dependency is unnecessary.
+```
 
 ---
 
 ## 1. Correct Import Patterns
 
 ### 1.1 ✅ CORRECT: Client and Model Imports
+
 ```rust
 use azure_security_keyvault_secrets::SecretClient;
 use azure_security_keyvault_secrets::models::SetSecretParameters;
@@ -22,6 +58,7 @@ use azure_identity::DeveloperToolsCredential;
 ## 2. Client Creation
 
 ### 2.1 ✅ CORRECT: SecretClient with Entra ID
+
 ```rust
 use azure_identity::DeveloperToolsCredential;
 use azure_security_keyvault_secrets::SecretClient;
@@ -37,6 +74,7 @@ let client = SecretClient::new(
 ### 2.2 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Hardcoded vault URL
+
 ```rust
 // WRONG - use environment variables
 let client = SecretClient::new(
@@ -51,6 +89,7 @@ let client = SecretClient::new(
 ## 3. Secret Operations
 
 ### 3.1 ✅ CORRECT: Get Secret
+
 ```rust
 let secret = client
     .get_secret("secret-name", None)
@@ -61,6 +100,7 @@ println!("Secret value: {:?}", secret.value);
 ```
 
 ### 3.2 ✅ CORRECT: Set Secret
+
 ```rust
 use azure_security_keyvault_secrets::models::SetSecretParameters;
 
@@ -76,6 +116,7 @@ let secret = client
 ```
 
 ### 3.3 ✅ CORRECT: Update Secret Properties
+
 ```rust
 use azure_security_keyvault_secrets::models::UpdateSecretPropertiesParameters;
 use std::collections::HashMap;
@@ -92,6 +133,7 @@ client
 ```
 
 ### 3.4 ✅ CORRECT: List Secrets with Paging
+
 ```rust
 use azure_security_keyvault_secrets::ResourceExt;
 use futures::TryStreamExt;
@@ -104,6 +146,7 @@ while let Some(secret) = pager.try_next().await? {
 ```
 
 ### 3.5 ✅ CORRECT: Delete Secret
+
 ```rust
 client.delete_secret("secret-name", None).await?;
 ```
@@ -111,6 +154,7 @@ client.delete_secret("secret-name", None).await?;
 ### 3.6 Anti-Patterns (ERRORS)
 
 #### ❌ INCORRECT: Not using into_model
+
 ```rust
 // WRONG - must call into_model() to get the secret
 let secret = client.get_secret("name", None).await?;
@@ -121,11 +165,13 @@ let secret = client.get_secret("name", None).await?;
 ## 4. Best Practices
 
 ### 4.1 ✅ CORRECT: Use into_model for responses
+
 ```rust
 let secret = response.into_model()?;
 ```
 
 ### 4.2 ✅ CORRECT: Use ResourceExt for extracting names
+
 ```rust
 use azure_security_keyvault_secrets::ResourceExt;
 
@@ -133,6 +179,7 @@ let name = secret.resource_id()?.name;
 ```
 
 ### 4.3 ✅ CORRECT: Use try_into for parameters
+
 ```rust
 let params = SetSecretParameters { ... };
 client.set_secret("name", params.try_into()?, None).await?;

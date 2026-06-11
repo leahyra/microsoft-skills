@@ -213,7 +213,7 @@ See `references/azure-sdk-patterns.md` for detailed patterns including:
 - **.NET**: `Response<T>`, `Pageable<T>`, `Operation<T>`, mocking support
 - **Java**: Builder pattern, `PagedIterable`/`PagedFlux`, Reactor types
 - **TypeScript**: `PagedAsyncIterableIterator`, `AbortSignal`, browser considerations
-- **Rust**: `Response<T>`, `Pager<T>`, `RequestContent::from()`, `.into_model()`, explicit credential types, RBAC roles for Entra ID authentication.
+- **Rust**: Installation via `cargo add`, dependency rule for `azure_core`, `Response<T>`, `Pager<T>`, `RequestContent::from()`, `.into_model()`, explicit credential types, RBAC roles for Entra ID authentication
 
 ### Required Best Practices in Every Skill (User-Facing)
 
@@ -251,11 +251,17 @@ Add both items verbatim (adapted only for language/SDK specifics) as the **first
 
 #### Rust Language
 
-1. **Use `DeveloperToolsCredential` for local development and `ManagedIdentityCredential` for production.** The Rust SDK does not support `DefaultAzureCredential`, so explicitly use the appropriate credential in each environment.
+**These three rules MUST be explicitly written into every Rust skill's `## Best Practices` section as the first three items:**
 
-2. **Use `RequestContent::from()` to wrap upload data.** When uploading data (e.g., blobs), wrap the content in `RequestContent::from(your_data)` to ensure proper handling by the SDK.
+1. **Use `cargo add` to manage dependencies, never edit `Cargo.toml` directly.** Always use `cargo add <crate>` or `cargo remove <crate>` instead of manually modifying the manifest file. Official crates are published on crates.io and should be added via cargo.
 
-3. **Assign appropriate RBAC roles for Entra ID auth.** For production authentication using Entra ID, ensure the identity has the necessary RBAC role assigned (e.g., "Storage Blob Data Contributor" for blob write access).
+2. **Add `azure_core` to `Cargo.toml` only when you import `azure_core` types directly.** If your code imports types like `azure_core::http::Url`, `azure_core::http::RequestContent`, or `azure_core::error::ErrorKind`, explicitly add `azure_core` to your dependencies. If you only use types re-exported by service crates (e.g., via `use azure_storage_blob::BlobClient`), a direct `azure_core` dependency is optional.
+
+3. **Use `DeveloperToolsCredential` for local development and `ManagedIdentityCredential` for production.** The Rust SDK does not support `DefaultAzureCredential`, so explicitly use the appropriate credential in each environment.
+
+4. **Use `RequestContent::from()` to wrap upload data.** When uploading data (e.g., blobs), wrap the content in `RequestContent::from(your_data)` to ensure proper handling by the SDK.
+
+5. **Assign appropriate RBAC roles for Entra ID auth.** For production authentication using Entra ID, ensure the identity has the necessary RBAC role assigned (e.g., "Storage Blob Data Contributor" for blob write access).
 
 ### Handling Deprecated or Rebranded SDKs
 
@@ -694,6 +700,68 @@ After creating the skill:
 
 ---
 
+### Step 8: Regenerate Existing Skills from Latest SDK Sources
+
+Use this workflow when an existing skill has stale examples, outdated API signatures,
+or changed package guidance.
+
+1. **Identify canonical source files first**
+
+For Azure SDK language skills, use official upstream source docs and examples as the source of truth:
+
+- Rust: `https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/<service>/<crate>/README.md`
+- Rust examples: `https://github.com/Azure/azure-sdk-for-rust/tree/main/sdk/<service>/<crate>/examples/`
+- .NET/Java/Python/TS: use current Microsoft Learn package docs + official SDK repos
+
+2. **Refresh skill content surgically**
+
+- Update code snippets to match current constructor/method signatures
+- Keep crate/package names aligned with official publisher guidance
+- Preserve skill structure/frontmatter unless intentionally changing behavior
+- Update "Best Practices" and "Reference Links" when upstream recommendations change
+- For Rust, if code uses `azure_core` types/imports directly, ensure `azure_core` is present in `Cargo.toml`; if only service-crate re-exports are used, direct `azure_core` dependency is optional
+
+3. **Validate regenerated skill behavior**
+
+```bash
+cd tests
+pnpm harness <skill-name> --mock --verbose
+```
+
+If the skill has a Vally scenario, run that eval as well (locally or in CI) before finalizing.
+
+**Rust regeneration gate (required for Rust skills):**
+
+When regenerating any Rust skill, verify the generated `## Best Practices` section contains these exact first two rules:
+
+1. `Use cargo add to manage dependencies, never edit Cargo.toml directly`
+2. `Add azure_core only when importing azure_core types directly`
+
+Use a content check before finalizing:
+
+```bash
+rg -n "Use `cargo add` to manage dependencies, never edit `Cargo.toml` directly|Add `azure_core` only when importing `azure_core` types directly" .github/plugins/azure-sdk-rust/skills/**/SKILL.md
+```
+
+The regeneration is not complete unless both lines are present in each affected Rust skill.
+
+4. **Regenerate docs artifacts after refresh**
+
+```bash
+cd docs-site && npx tsx scripts/extract-skills.ts
+cd docs-site && npm run build
+```
+
+5. **Record what changed**
+
+In the PR/commit notes, include:
+
+- Which upstream docs/examples were used
+- Which snippets/signatures were corrected
+- Which tests/evals were run and their outcomes
+
+---
+
 ## Progressive Disclosure Patterns
 
 ### Pattern 1: High-Level Guide with References
@@ -777,9 +845,10 @@ Before completing a skill:
 
 - [ ] Description includes what AND when (trigger phrases)
 - [ ] SKILL.md under 500 lines
-- [ ] Authentication uses `DefaultAzureCredential`
+- [ ] Authentication follows language rules (`DefaultAzureCredential` for Python/.NET/Java/TS local dev; `DeveloperToolsCredential` local dev + `ManagedIdentityCredential` production for Rust)
 - [ ] Includes cleanup/delete in examples
 - [ ] References organized by feature
+- [ ] For Rust skills: `## Best Practices` starts with cargo dependency rule + `azure_core` direct-import rule
 
 **Categorization:**
 
