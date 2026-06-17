@@ -34,3 +34,7 @@ infra/
 
 # Fixtures generated during tests
 fixtures/
+
+# Keep vally tools regression fixtures in source control.
+!scenarios/_shared/vally/tools/tests/fixtures/
+!scenarios/_shared/vally/tools/tests/fixtures/**

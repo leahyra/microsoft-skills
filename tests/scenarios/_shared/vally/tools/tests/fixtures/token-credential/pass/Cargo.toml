@@ -1,0 +1,7 @@
+[package]
+name = "token-pass"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+azure_identity = "1.0"

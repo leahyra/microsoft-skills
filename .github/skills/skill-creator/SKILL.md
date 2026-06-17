@@ -146,7 +146,7 @@ Every Python Azure SDK skill MUST open its `## Authentication & Lifecycle` secti
 **Code sample enforcement.** Every client construction in the skill body must demonstrate both rules:
 
 - Show `with` / `async with` on every client instantiation in usage examples (not just the auth section).
-- Show `DefaultAzureCredential` in the primary auth example. **Do not delete API-key examples for SDKs where keys are still officially supported** — many existing users (especially in regulated environments still completing their Entra rollout) need a copy-pastable working sample. Demote the keyed snippet into a clearly-labeled `### Legacy: API Key (existing keyed deployments)` subsection placed *after* the primary `DefaultAzureCredential` block in the same `## Authentication & Lifecycle` section. Include a one-line note that new code should use `DefaultAzureCredential` and that the keyed path is for existing deployments. Also add the `<SERVICE>_KEY` env var back to the Environment Variables block with a `# Only required for the legacy API-key auth path below` comment.
+- Show `DefaultAzureCredential` in the primary auth example. **Do not delete API-key examples for SDKs where keys are still officially supported** — many existing users (especially in regulated environments still completing their Entra rollout) need a copy-pastable working sample. Demote the keyed snippet into a clearly-labeled `### Legacy: API Key (existing keyed deployments)` subsection placed _after_ the primary `DefaultAzureCredential` block in the same `## Authentication & Lifecycle` section. Include a one-line note that new code should use `DefaultAzureCredential` and that the keyed path is for existing deployments. Also add the `<SERVICE>_KEY` env var back to the Environment Variables block with a `# Only required for the legacy API-key auth path below` comment.
 - A handful of services have key-specific quirks worth calling out in the Legacy subsection (e.g. `azure-ai-translation-text` requires a `region=` parameter when using a key against the global endpoint, because token-credential auth requires a custom subdomain endpoint). Surface these in the demoted block rather than dropping the example.
 - For async examples, wrap `DefaultAzureCredential` from `azure.identity.aio` in `async with credential:` alongside the client.
 
@@ -412,19 +412,19 @@ credential = DefaultAzureCredential(require_envvar=True)
 # See https://learn.microsoft.com/python/api/overview/azure/identity-readme?view=azure-python#credential-classes
 
 # credential = ManagedIdentityCredential()
+
 with ExampleClient(
-    endpoint=os.environ["AZURE_EXAMPLE_ENDPOINT"],
-    credential=credential,
+endpoint=os.environ["AZURE_EXAMPLE_ENDPOINT"],
+credential=credential,
 ) as client:
-    item = client.get_item("example")
+item = client.get_item("example")
 \`\`\`
 
 ## Core Workflow
 
 \`\`\`python
-with ExampleClient(endpoint=endpoint, credential=credential) as client:
-    # Create
-    item = client.create_item(name="example", data={...})
+with ExampleClient(endpoint=endpoint, credential=credential) as client: # Create
+item = client.create_item(name="example", data={...})
 
     # List (pagination handled automatically)
     for item in client.list_items():
@@ -436,6 +436,7 @@ with ExampleClient(endpoint=endpoint, credential=credential) as client:
 
     # Cleanup
     client.delete_item(item.id)
+
 \`\`\`
 
 ## Reference Files
@@ -633,25 +634,25 @@ from azure.ai.mymodule.models import MyClient # Wrong - Client is not in models
 \`\`\`python
 credential = DefaultAzureCredential()
 with MyClient(endpoint, credential) as client:
-    client.do_thing()
+client.do_thing()
 \`\`\`
 
 #### ❌ INCORRECT: Hardcoded Credentials
 
 \`\`\`python
-client = MyClient(endpoint, api_key="hardcoded")  # Security risk
+client = MyClient(endpoint, api_key="hardcoded") # Security risk
 \`\`\`
 
 #### ❌ INCORRECT: Connection string / account key when Entra is supported
 
 \`\`\`python
-client = MyClient.from_connection_string(os.environ["CONNECTION_STRING"])  # Bypasses Entra audit/rotation
+client = MyClient.from_connection_string(os.environ["CONNECTION_STRING"]) # Bypasses Entra audit/rotation
 \`\`\`
 
 #### ❌ INCORRECT: Bare client without context manager
 
 \`\`\`python
-client = MyClient(endpoint, credential)  # Leaks HTTP transport on exception / interpreter exit
+client = MyClient(endpoint, credential) # Leaks HTTP transport on exception / interpreter exit
 client.do_thing()
 \`\`\`
 ```
@@ -682,11 +683,11 @@ scenarios:
     expected_patterns:
       - "DefaultAzureCredential"
       - "MyClient"
-      - "with MyClient"  # enforce context manager
+      - "with MyClient" # enforce context manager
     forbidden_patterns:
       - "api_key="
       - "hardcoded"
-      - "from_connection_string"  # prefer Entra over connection strings
+      - "from_connection_string" # prefer Entra over connection strings
     tags:
       - basic
       - authentication
@@ -884,20 +885,20 @@ azure-ai-agents/
 
 ## Anti-Patterns
 
-| Don't                            | Why                                        |
-| -------------------------------- | ------------------------------------------ |
-| Create skill without SDK context | Users must provide package name/docs URL   |
-| Put "when to use" in body        | Body loads AFTER triggering                |
-| Hardcode credentials             | Security risk                              |
-| Skip authentication section      | Agents will improvise poorly               |
-| Use outdated SDK patterns        | APIs change; search docs first             |
-| Include README.md                | Agents don't need meta-docs                |
-| Deeply nest references           | Keep one level deep                        |
-| Skip acceptance criteria         | Skills without tests can't be validated    |
-| Skip symlink categorization      | Skills won't be discoverable by category   |
-| Use wrong import paths           | Azure SDKs have specific module structures |
+| Don't                                                                          | Why                                                                                 |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Create skill without SDK context                                               | Users must provide package name/docs URL                                            |
+| Put "when to use" in body                                                      | Body loads AFTER triggering                                                         |
+| Hardcode credentials                                                           | Security risk                                                                       |
+| Skip authentication section                                                    | Agents will improvise poorly                                                        |
+| Use outdated SDK patterns                                                      | APIs change; search docs first                                                      |
+| Include README.md                                                              | Agents don't need meta-docs                                                         |
+| Deeply nest references                                                         | Keep one level deep                                                                 |
+| Skip acceptance criteria                                                       | Skills without tests can't be validated                                             |
+| Skip symlink categorization                                                    | Skills won't be discoverable by category                                            |
+| Use wrong import paths                                                         | Azure SDKs have specific module structures                                          |
 | Omit sync/async + context-manager bullets from Best Practices in Python skills | End users won't follow rules that aren't written down; examples alone aren't enough |
-| Mix sync and async in the same Python example | Demonstrates the anti-pattern the skill is supposed to prevent |
+| Mix sync and async in the same Python example                                  | Demonstrates the anti-pattern the skill is supposed to prevent                      |
 
 ---
 
@@ -917,7 +918,7 @@ Before completing a skill:
 - [ ] Authentication follows language rules (`DefaultAzureCredential` for Python/.NET/Java/TS local dev; `DeveloperToolsCredential` local dev + `ManagedIdentityCredential` production for Rust)
 - [ ] Includes cleanup/delete in examples
 - [ ] References organized by feature
- [ ] **(Python skills only) Best Practices section contains the two user-facing rules** (sync-or-async consistency + context managers for clients and async credentials), using the variant matched to the skill type
+- [ ] **(Python skills only) Best Practices section contains the two user-facing rules** (sync-or-async consistency + context managers for clients and async credentials), using the variant matched to the skill type
 - [ ] For Rust skills: `## Best Practices` starts with cargo dependency rule + `azure_core` direct-import rule
 
 **Categorization:**
