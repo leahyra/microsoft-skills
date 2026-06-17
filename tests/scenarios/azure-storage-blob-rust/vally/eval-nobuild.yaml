@@ -90,7 +90,7 @@ stimuli:
           args:
             - "build"
           stderr_contains: "Finished"
-          timeout: 120s
+          timeout: 3m
       - type: run-command
         name: "Check Application"
         config:

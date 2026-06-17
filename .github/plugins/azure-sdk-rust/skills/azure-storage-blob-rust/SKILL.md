@@ -179,6 +179,8 @@ match result {
 }
 ```
 
+> **Note:** `StorageError::try_into` requires an owned error object — it will not compile if handed a reference to an error.
+
 ## RBAC Roles
 
 For Entra ID auth, assign one of these roles to the identity:

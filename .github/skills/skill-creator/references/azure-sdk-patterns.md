@@ -682,6 +682,8 @@ match blob_client.download(None).await {
 }
 ```
 
+Note that `StorageError::try_into` requires an owned error object, it will not compile if handed a reference to an error.
+
 ### Model Types
 
 ```rust
