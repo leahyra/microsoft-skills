@@ -1,5 +1,61 @@
 # Changelog
 
+## 1.1.70
+
+- feat: improve the hosted agent getting started with coding ([#2610](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2610))
+
+## 1.1.69
+
+- feat: add python-appservice-deploy skill for Python/Flask/Django/FastAPI on App Service ([#2487](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2487))
+
+## 1.1.68
+
+- feat(azure-compute): add VM creation workflow with approval gate before deploy ([#2297](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2297))
+
+## 1.1.67
+
+- feat: (azure-cost) add storage optimization guide and fix token limit ([#2554](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2554))
+
+## 1.1.66
+
+- eval: migrate infra-planner tests to Vally ([#2483](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2483))
+
+## 1.1.64
+
+- Fix: hard gate deployment phase for infra-planner skill ([#2427](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2427))
+
+## 1.1.59
+
+- feat(azure-kubernetes): Update constraint spec references to match what Deployment Safeguards enforces ([#1976](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/1976))
+
+## 1.1.53
+
+- feature: Move quota workflow to a script ([#2360](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2360))
+
+## 1.1.52
+
+- fix: toolbox skill invocation and foundry samples path ([#2389](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2389))
+
+## 1.1.51
+
+- feat: support direct code deployment ([#2362](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2362))
+
+## 1.1.47
+
+- feat(azure-diagnostics/inspektor-gadget): Use correct filter for tcpdump gadget ([#2292](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2292))
+
+## 1.1.46
+
+- feat(microsoft-foundry): add Tracing Insights API skill for automated anomaly detection ([#2276](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2276))
+
+## 1.1.45
+
+- fix(microsoft-foundry): update integrate toolbox into hosted-agent flow ([#2264](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2264))
+
+## 1.1.41
+
+- fix: update foundry-agent invoke skill for invocations protocol ([#2154](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2154))
+
 ## 1.1.38
 
 - fix: improve azure-hosted-copilot-sdk routing for codebase-detection scenarios ([#1857](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/1857))
@@ -32,6 +88,10 @@
 
 - feat: generate CHANGELOG.md at build time from git history ([#2068](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2068))
 
+## 1.1.13
+
+- chore: update post-deployment rbac assignment logic ([#2057](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2057))
+
 ## 1.1.12
 
 - fix: Add Foundry Toolbox integration to hosted agent create skill ([#2035](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2035))
@@ -47,6 +107,10 @@
 ## 1.1.7
 
 - fix(azure-prepare): fix Aspire AddParameter+WithBuildArg guidance for all azd versions ([#1939](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/1939))
+
+## 1.1.5
+
+- chore: support hosted agent v2 in code gen and deploy skill ([#2000](https://github.com/microsoft/GitHub-Copilot-for-Azure/pull/2000))
 
 ## 1.1.3
 

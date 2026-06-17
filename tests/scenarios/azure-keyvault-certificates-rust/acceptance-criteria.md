@@ -148,7 +148,7 @@ let certificate = client
 use azure_security_keyvault_certificates::ResourceExt;
 use futures::TryStreamExt;
 
-let mut pager = client.list_certificate_properties(None)?.into_stream();
+let mut pager = client.list_certificate_properties(None)?;
 while let Some(cert) = pager.try_next().await? {
     let name = cert.resource_id()?.name;
     println!("Certificate: {}", name);

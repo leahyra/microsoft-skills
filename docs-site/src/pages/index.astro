@@ -183,7 +183,7 @@ import hooks from '../data/hooks.json';
           </div>
           <button type="button" class="modal-close" onclick="document.getElementById('foundry-modal').close()" aria-label="Close">&#x2715;</button>
         </div>
-        <p class="modal-desc">Foundry-platform fluency for any language. One orchestrator + 10 language-agnostic skills covering hosted agents, intent-based toolboxes, multi-agent workflows, Foundry IQ knowledge bases, managed skills, long-term memory, observability + RAI evaluations, and governance via the Foundry Control Plane.</p>
+        <p class="modal-desc">Build hosted agents, intent-based toolboxes, knowledge bases, and more on Microsoft Foundry &mdash; language-agnostic, CLI-first.</p>
 
         <div class="modal-section">
           <h3 class="modal-section-title">Install</h3>
@@ -198,121 +198,107 @@ import hooks from '../data/hooks.json';
         </div>
 
         <div class="modal-section">
-          <h3 class="modal-section-title">Prerequisites</h3>
-          <div class="modal-table">
-            <div class="modal-row">
-              <code class="modal-cmd">Azure account</code>
-              <span>An <a href="https://learn.microsoft.com/azure/ai-foundry/how-to/create-projects" target="_blank" rel="noopener">Azure AI Foundry project</a> &mdash; opens in a new tab</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Azure CLI</code>
-              <span><code>az login</code> &mdash; <a href="https://learn.microsoft.com/cli/azure/install-azure-cli" target="_blank" rel="noopener">install az</a></span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Azure Developer CLI</code>
-              <span>Required for hosted-agent deploy. <a href="https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd" target="_blank" rel="noopener">Install azd</a>, then run <code>azd ext install azure.ai.agents</code></span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Project endpoint</code>
-              <span><code>export AZURE_AI_PROJECT_ENDPOINT="https://&lt;resource&gt;.services.ai.azure.com/api/projects/&lt;project&gt;"</code></span>
-            </div>
-          </div>
+          <h3 class="modal-section-title">Try this</h3>
+          <p class="modal-section-desc">Once installed, just describe what you want. The orchestrator routes intent to the right sub-skill.</p>
+          <ul class="modal-prompts">
+            <li>&ldquo;Build a hosted agent grounded on my product docs&rdquo;</li>
+            <li>&ldquo;Curate a toolbox with web search and a GitHub MCP server&rdquo;</li>
+            <li>&ldquo;Trace and run safety evaluations on my agent&rdquo;</li>
+            <li>&ldquo;Deploy this agent with <code>azd ai agent</code>&rdquo;</li>
+          </ul>
         </div>
 
-        <div class="modal-section">
-          <h3 class="modal-section-title">Getting Started</h3>
-          <p class="modal-section-desc">After install, just describe what you want &mdash; the <code>microsoft-foundry</code> orchestrator routes to the right sub-skill and discovery surface (Foundry MCP, Microsoft Docs MCP, <code>azd ai agent</code>).</p>
-          <div class="modal-table">
-            <div class="modal-row">
-              <code class="modal-cmd">Hosted agent</code>
-              <span>&ldquo;Build a hosted agent that uses the Responses protocol and answers questions about my product docs&rdquo; &rarr; routes to <code>foundry-hosted-agents</code> + <code>foundry-iq-knowledge-bases</code></span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Curate a toolbox</code>
-              <span>&ldquo;Create a toolbox with web search and a GitHub MCP server, then attach it to my agent&rdquo; &rarr; routes to <code>foundry-toolboxes</code></span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Deploy with azd</code>
-              <span>&ldquo;Scaffold and deploy this agent with azd ai agent init&rdquo; &rarr; routes to <code>foundry-hosted-agents</code> (azd-first deploy flow)</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Trace + evaluate</code>
-              <span>&ldquo;Add OpenTelemetry tracing and run a batch evaluation with safety evaluators&rdquo; &rarr; routes to <code>foundry-observability</code></span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Govern</code>
-              <span>&ldquo;Set up an AI Gateway in front of our MCP tools and assign agent identity RBAC&rdquo; &rarr; routes to <code>foundry-governance</code></span>
+        <details class="modal-details">
+          <summary class="modal-details-summary">Prerequisites</summary>
+          <div class="modal-details-content">
+            <div class="modal-table">
+              <div class="modal-row">
+                <code class="modal-cmd">Foundry project</code>
+                <span><a href="https://learn.microsoft.com/azure/ai-foundry/how-to/create-projects" target="_blank" rel="noopener">Create one</a></span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">Azure CLI</code>
+                <span><a href="https://learn.microsoft.com/cli/azure/install-azure-cli" target="_blank" rel="noopener">Install</a> &middot; then <code>az login</code></span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">azd CLI</code>
+                <span><a href="https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd" target="_blank" rel="noopener">Install</a> &middot; then <code>azd ext install azure.ai.agents</code></span>
+              </div>
             </div>
           </div>
-        </div>
+        </details>
 
-        <div class="modal-section">
-          <h3 class="modal-section-title">MCP Servers</h3>
-          <div class="modal-table">
-            <div class="modal-row">
-              <code class="modal-cmd">Azure MCP</code>
-              <span>Manage 40+ Azure services from your editor</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Foundry MCP</code>
-              <span>Foundry-native ops (model catalog, agents, toolboxes, knowledge bases) at <code>mcp.ai.azure.com</code></span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">Microsoft Docs</code>
-              <span>Real-time Microsoft Learn search for current SDK patterns</span>
+        <details class="modal-details">
+          <summary class="modal-details-summary">3 MCP servers bundled</summary>
+          <div class="modal-details-content">
+            <div class="modal-table">
+              <div class="modal-row">
+                <code class="modal-cmd">Azure MCP</code>
+                <span>40+ Azure services</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">Foundry MCP</code>
+                <span>Model catalog, agents, toolboxes, knowledge bases</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">Microsoft Docs</code>
+                <span>Real-time Microsoft Learn search</span>
+              </div>
             </div>
           </div>
-        </div>
+        </details>
 
-        <div class="modal-section">
-          <h3 class="modal-section-title">Skills (language-agnostic)</h3>
-          <div class="modal-table">
-            <div class="modal-row">
-              <code class="modal-cmd">microsoft-foundry</code>
-              <span>Orchestrator &mdash; routes user intent to the right sub-skill and discovery surface</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-projects-resources</code>
-              <span>Provision Foundry resources/projects, configure connections, set up standard or private-network agent infrastructure</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-models</code>
-              <span>Deploy models (preset/customize), discover capacity, manage quota, choose PTU vs pay-as-you-go</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-hosted-agents</code>
-              <span>Build and deploy hosted agents &mdash; Responses + Invocations protocols, agent.yaml, azd ai agent, sessions, dedicated identity</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-toolboxes</code>
-              <span>Curate intent-based toolboxes &mdash; single MCP endpoint bundling Web Search, AI Search, MCP, A2A, OpenAPI, browser automation, and more</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-workflows</code>
-              <span>Multi-agent orchestration &mdash; workflow vs A2A vs Connected Agents decision, Agent Framework workflows</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-iq-knowledge-bases</code>
-              <span>Foundry IQ knowledge bases (preview) &mdash; multi-source, permission-aware grounding via agentic retrieval</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-managed-skills</code>
-              <span>SKILL.md files as a Foundry resource via the Skills REST API &mdash; author behavioral policy once, share across hosted agents</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-memory</code>
-              <span>Long-term memory stores &mdash; user profile + chat summary memory, with security guidance</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-observability</code>
-              <span>OpenTelemetry tracing in App Insights, KQL templates, evaluations + RAI evaluators, dataset curation from traces</span>
-            </div>
-            <div class="modal-row">
-              <code class="modal-cmd">foundry-governance</code>
-              <span>Foundry Control Plane, AI Gateway tools governance for MCP, RBAC + agent identity, RAI policies on model deployments</span>
+        <details class="modal-details">
+          <summary class="modal-details-summary">11 skills (orchestrator + 10 sub-skills)</summary>
+          <div class="modal-details-content">
+            <div class="modal-table">
+              <div class="modal-row">
+                <code class="modal-cmd">microsoft-foundry</code>
+                <span>Orchestrator &mdash; routes intent to the right sub-skill</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-projects-resources</code>
+                <span>Provision resources, projects, connections, RBAC</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-models</code>
+                <span>Deploy models, capacity, quota</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-hosted-agents</code>
+                <span>Hosted agents, Responses + Invocations protocols, azd</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-toolboxes</code>
+                <span>Intent-based toolboxes, single MCP endpoint</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-workflows</code>
+                <span>Multi-agent orchestration, A2A, Connected Agents</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-iq-knowledge-bases</code>
+                <span>Foundry IQ, agentic retrieval, permission-aware</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-managed-skills</code>
+                <span>SKILL.md as Foundry resource (Skills REST API)</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-memory</code>
+                <span>Long-term memory stores</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-observability</code>
+                <span>Tracing, KQL, evaluations + RAI evaluators</span>
+              </div>
+              <div class="modal-row">
+                <code class="modal-cmd">foundry-governance</code>
+                <span>Control Plane, AI Gateway, agent identity, RAI policies</span>
+              </div>
             </div>
           </div>
-        </div>
+        </details>
 
         <div class="modal-footer">
           <button type="button" class="modal-share-btn" id="foundry-share-btn" aria-label="Share">
@@ -745,8 +731,9 @@ import hooks from '../data/hooks.json';
     border: 1px solid var(--border-hover);
     border-radius: var(--radius-xl);
     padding: 0;
-    max-width: 560px;
-    width: 90vw;
+    max-width: 720px;
+    width: 92vw;
+    max-height: 88vh;
     inset: 0;
     margin: auto;
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.6), 0 0 30px var(--accent-glow);
@@ -759,6 +746,8 @@ import hooks from '../data/hooks.json';
 
   .modal-content {
     padding: var(--space-xl);
+    max-height: 88vh;
+    overflow-y: auto;
   }
 
   .modal-header {
@@ -836,9 +825,84 @@ import hooks from '../data/hooks.json';
     line-height: 1.5;
   }
 
+  .modal-prompts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .modal-prompts li {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    line-height: 1.5;
+  }
+
+  .modal-prompts li::before {
+    content: "▸";
+    color: var(--accent);
+    margin-right: var(--space-sm);
+    font-weight: 700;
+  }
+
+  .modal-details {
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  .modal-details[open] {
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .modal-details-summary {
+    cursor: pointer;
+    list-style: none;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+  }
+
+  .modal-details-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .modal-details-summary::after {
+    content: "+";
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    font-weight: 400;
+    transition: transform 0.2s ease;
+  }
+
+  .modal-details[open] .modal-details-summary::after {
+    content: "−";
+  }
+
+  .modal-details-summary:hover {
+    color: var(--accent);
+  }
+
+  .modal-details-content {
+    padding: 0 var(--space-md) var(--space-md);
+  }
+
   .modal-section-desc code,
   .modal-row code:not(.modal-cmd),
-  .modal-row span code {
+  .modal-row span code,
+  .modal-prompts code {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-primary);
     border-radius: 4px;
