@@ -4,8 +4,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["**/*.test.ts"],
-    exclude: ["node_modules", "dist", ".venv", "__pycache__"],
+    // Keep discovery scoped to this repo's tests so vendored dependency tests are not executed.
+    include: ["harness/**/*.test.ts", "plugins/**/*.test.ts"],
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.venv/**",
+      "**/__pycache__/**",
+      "**/pnpm-store/**",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
