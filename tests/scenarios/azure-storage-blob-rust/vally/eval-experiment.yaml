@@ -2,6 +2,9 @@ name: azure-storage-blob-rust-eval
 description: Evaluation suite for azure-storage-blob-rust
 version: "1.0"
 type: capability
+scoring:
+  weights: {}
+  threshold: 1.0
 defaults:
   runs: 1
   timeout: 30m
