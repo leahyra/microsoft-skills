@@ -3,7 +3,7 @@
 # Each scenario tests a specific usage pattern against acceptance criteria
 
 config:
-  model: gpt-4
+  model: claude-sonnet-4.6
   max_tokens: 2000
   temperature: 0.3
 
@@ -51,7 +51,7 @@ scenarios:
           value: "hello".into(),
       };
 
-      container.create_item("partition1", item, None).await?;
+        container.create_item("partition1", "1", item, None).await?;
 
   - name: read_item
     prompt: |
@@ -87,7 +87,7 @@ scenarios:
       // Read existing item
       let response = container.read_item("partition1", "1", None).await?;
       let mut item: Item = response.into_model()?;
-      
+
       // Update and replace
       item.value = "updated".into();
       container.replace_item("partition1", "1", item, None).await?;
@@ -97,20 +97,22 @@ scenarios:
       Patch an item in Cosmos DB to add a new field and remove an old field.
     expected_patterns:
       - "patch_item"
-      - "PatchDocument"
-      - "with_add"
-      - "with_remove"
+      - "PatchInstructions"
+      - "PatchOperation"
+      - "set"
+      - "remove"
     forbidden_patterns:
       - "replace_item"
     tags:
       - crud
       - patch
     mock_response: |
-      use azure_data_cosmos::models::PatchDocument;
+      use azure_data_cosmos::models::{PatchInstructions, PatchOperation};
 
-      let patch = PatchDocument::default()
-          .with_add("/newField", "newValue")?
-          .with_remove("/oldField")?;
+      let patch = PatchInstructions::from(vec![
+          PatchOperation::set("/newField", serde_json::json!("newValue")),
+          PatchOperation::remove("/oldField"),
+      ]);
 
       container.patch_item("partition1", "1", patch, None).await?;
 

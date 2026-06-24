@@ -1,0 +1,112 @@
+# yaml-language-server: $schema=../skill-scenarios.schema.json
+# Test scenarios for azure-storage-queue-rust skill evaluation
+# Each scenario tests a specific usage pattern against acceptance criteria
+
+config:
+  model: claude-sonnet-4.6
+  max_tokens: 2000
+  temperature: 0.3
+
+scenarios:
+  - name: dependency_gate_cargo_add
+    prompt: |
+      For a Rust Azure Storage Queue example, explain how dependencies should be managed.
+    expected_patterns:
+      - "cargo add"
+      - "Cargo.toml"
+      - "azure_core"
+    forbidden_patterns:
+      - "edit Cargo.toml manually"
+    tags:
+      - dependency
+      - guardrail
+    mock_response: |
+      Use cargo commands for dependency management:
+      cargo add azure_storage_queue azure_identity tokio
+      Add azure_core only when you import azure_core types directly.
+      Do not manually edit Cargo.toml in generated guidance.
+
+  - name: create_queue_client
+    prompt: |
+      Create a QueueServiceClient and QueueClient in Rust using DeveloperToolsCredential.
+    expected_patterns:
+      - "QueueServiceClient"
+      - "DeveloperToolsCredential"
+      - "queue.core.windows.net"
+      - "Url::parse"
+    forbidden_patterns:
+      - "connection_string"
+      - "account_key"
+    tags:
+      - basic
+      - authentication
+    mock_response: |
+      use azure_core::http::Url;
+      use azure_identity::DeveloperToolsCredential;
+      use azure_storage_queue::QueueServiceClient;
+
+      let credential = DeveloperToolsCredential::new(None)?;
+      let service_url = Url::parse("https://<account>.queue.core.windows.net/")?;
+      let service_client = QueueServiceClient::new(service_url, Some(credential), None)?;
+      let queue_client = service_client.queue_client("<queue_name>")?;
+
+  - name: send_message
+    prompt: |
+      Send a message to an Azure Queue in Rust.
+    expected_patterns:
+      - "QueueMessage"
+      - "send_message"
+      - "try_into"
+    forbidden_patterns:
+      - "receive_messages"
+    tags:
+      - write
+      - queue
+    mock_response: |
+      use azure_storage_queue::models::QueueMessage;
+
+      let message = QueueMessage {
+          message_text: Some("hello world".to_string()),
+      };
+      queue_client.send_message(message.try_into()?, None).await?;
+
+  - name: receive_and_delete_messages
+    prompt: |
+      Receive messages from Azure Queue and delete processed messages correctly.
+    expected_patterns:
+      - "receive_messages"
+      - "message_id"
+      - "pop_receipt"
+      - "delete_message"
+    forbidden_patterns:
+      - 'delete_message("id-only"'
+    tags:
+      - read
+      - delete
+      - queue
+    mock_response: |
+      let response = queue_client.receive_messages(None).await?;
+      let messages = response.into_model()?;
+      for msg in messages.items.unwrap_or_default() {
+          if let (Some(id), Some(pop_receipt)) = (&msg.message_id, &msg.pop_receipt) {
+              queue_client.delete_message(id, pop_receipt, None).await?;
+          }
+      }
+
+  - name: peek_messages
+    prompt: |
+      Peek queue messages in Rust without removing them.
+    expected_patterns:
+      - "peek_messages"
+      - "into_model"
+    forbidden_patterns:
+      - "delete_message"
+    tags:
+      - read
+      - peek
+    mock_response: |
+      let response = queue_client.peek_messages(None).await?;
+      let messages = response.into_model()?;
+      for msg in messages.items.unwrap_or_default() {
+          println!("Peeked: {}", msg.message_text.as_deref().unwrap_or("<empty>"));
+      }

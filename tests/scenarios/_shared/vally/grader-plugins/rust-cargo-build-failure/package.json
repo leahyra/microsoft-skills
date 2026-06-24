@@ -1,0 +1,18 @@
+{
+    "name": "@skills/grader-rust-cargo-build-failure",
+    "version": "1.0.0",
+    "description": "Vally grader plugin: checks Rust cargo build failures and compiler errors in trajectory",
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "@microsoft/vally": "^0.6.0",
+        "@types/node": "^20.0.0",
+        "typescript": "^5.4.5"
+    },
+    "license": "MIT"
+}

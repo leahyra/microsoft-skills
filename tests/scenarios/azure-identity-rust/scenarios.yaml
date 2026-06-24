@@ -3,7 +3,7 @@
 # Each scenario tests a specific usage pattern against acceptance criteria
 
 config:
-  model: gpt-4
+  model: claude-sonnet-4.6
   max_tokens: 2000
   temperature: 0.3
 
@@ -71,9 +71,9 @@ scenarios:
       use azure_identity::ClientSecretCredential;
 
       let credential = ClientSecretCredential::new(
-          "<tenant-id>".into(),
-          "<client-id>".into(),
-          "<client-secret>".into(),
+          "<tenant_id>".into(),
+          "<client_id>".into(),
+          "<client_secret>".into(),
           None,
       )?;
 

@@ -6,6 +6,41 @@
 
 ---
 
+## 0. Dependency Management Gate (Required)
+
+### 0.1 ✅ CORRECT: Use cargo commands for dependency changes
+
+```sh
+cargo add azure_storage_blob azure_identity tokio
+cargo add azure_core
+cargo remove azure_core
+```
+
+### 0.2 ✅ CORRECT: Add `azure_core` only for direct `azure_core` imports
+
+```rust
+use azure_core::http::Url;
+use azure_storage_blob::BlobServiceClient;
+// Direct azure_core import is used, so `azure_core` should be a direct dependency.
+```
+
+### 0.3 ❌ INCORRECT: Manual Cargo.toml dependency edits in generated guidance
+
+```toml
+# WRONG in generated guidance - use `cargo add` / `cargo remove` commands instead
+[dependencies]
+azure_core = "*"
+```
+
+### 0.4 ❌ INCORRECT: Requiring `azure_core` when no direct `azure_core` imports exist
+
+```rust
+use azure_storage_blob::BlobServiceClient;
+// No direct azure_core import here, so forcing direct azure_core dependency is unnecessary.
+```
+
+---
+
 ## 1. Correct Import Patterns
 
 ### 1.1 ✅ CORRECT: Client Imports

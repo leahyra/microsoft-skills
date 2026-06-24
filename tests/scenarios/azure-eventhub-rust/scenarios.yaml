@@ -3,7 +3,7 @@
 # Each scenario tests a specific usage pattern against acceptance criteria
 
 config:
-  model: gpt-4
+  model: claude-sonnet-4.6
   max_tokens: 2000
   temperature: 0.3
 
@@ -58,7 +58,7 @@ scenarios:
       - batch
       - producer
     mock_response: |
-      let batch = producer.create_batch(None).await?;
+      let mut batch = producer.create_batch(None).await?;
       batch.try_add_event_data(b"event 1".to_vec(), None)?;
       batch.try_add_event_data(b"event 2".to_vec(), None)?;
 
@@ -82,15 +82,15 @@ scenarios:
 
       let credential = DeveloperToolsCredential::new(None)?;
       let consumer = ConsumerClient::builder()
-          .open("<namespace>.servicebus.windows.net", "eventhub-name", credential.clone())
+          .open("<namespace>.servicebus.windows.net", "eventhub-name".to_string(), credential.clone())
           .await?;
 
   - name: receive_events
     prompt: |
       Receive events from a specific partition using the ConsumerClient in Rust.
     expected_patterns:
-      - "open_partition_receiver"
-      - "receive_events"
+      - "open_receiver_on_partition"
+      - "stream_events"
       - "partition"
     forbidden_patterns:
       - "send"
@@ -98,9 +98,12 @@ scenarios:
       - consumer
       - receive
     mock_response: |
-      let receiver = consumer.open_partition_receiver("0", None).await?;
+      use futures::StreamExt;
 
-      let events = receiver.receive_events(100, None).await?;
-      for event in events {
-          println!("Event data: {:?}", event.body());
+      let receiver = consumer.open_receiver_on_partition("0".to_string(), None).await?;
+
+      let mut event_stream = receiver.stream_events();
+      while let Some(event_result) = event_stream.next().await {
+        let event = event_result?;
+        println!("Event data: {:?}", event.body());
       }

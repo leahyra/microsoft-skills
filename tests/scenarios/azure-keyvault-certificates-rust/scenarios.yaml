@@ -3,7 +3,7 @@
 # Each scenario tests a specific usage pattern against acceptance criteria
 
 config:
-  model: gpt-4
+  model: claude-sonnet-4.6
   max_tokens: 2000
   temperature: 0.3
 
@@ -61,7 +61,7 @@ scenarios:
     prompt: |
       Create a self-signed certificate in Azure Key Vault using Rust.
     expected_patterns:
-      - "create_certificate"
+      - "begin_create_certificate"
       - "CreateCertificateParameters"
       - "CertificatePolicy"
       - "Self"
@@ -94,9 +94,10 @@ scenarios:
           ..Default::default()
       };
 
-      let operation = client
-          .create_certificate("cert-name", params.try_into()?, None)
-          .await?;
+        let certificate = client
+          .begin_create_certificate("cert-name", params.try_into()?, None)?
+          .await?
+          .into_model()?;
 
   - name: import_certificate
     prompt: |

@@ -509,9 +509,53 @@ try {
 
 ## Rust Patterns
 
-> **IMPORTANT:** Only use the official `azure_*` crates published by the [azure-sdk](https://crates.io/users/azure-sdk) crates.io user (e.g., `azure_core`, `azure_identity`, `azure_security_keyvault_secrets`). Do **NOT** use the deprecated unofficial crates (`azure_sdk_*` from MindFlavor/AzureSDKForRust) or the community crates (e.g., `azure_storage`, or `azure_storage_blobs` from the `azure_sdk_for_rust` ecosystem). The official crates use underscores in their names and are installed via `cargo add`. None of the official crates have a version number of 0.21.0.
+> **IMPORTANT:** Only use the official `azure_*` crates published by the [azure-sdk](https://crates.io/users/azure-sdk) crates.io user (e.g., `azure_core`, `azure_identity`, `azure_security_keyvault_secrets`). Do **NOT** use the deprecated unofficial crates (`azure_sdk_*` from MindFlavor/AzureSDKForRust) or the community crates (e.g., `azure_storage`, or `azure_storage_blobs` from the `azure_sdk_for_rust` ecosystem). The official crates use underscores in their names and are installed via `cargo add`. None of the official crates have a version number of 0.21.0. **Only create or modify crates using `cargo` commands; avoid modifying `Cargo.toml` files directly if at all possible.**
 >
 > **Source:** All examples below are derived from the official [azure-sdk-for-rust](https://github.com/Azure/azure-sdk-for-rust) repository README files and examples.
+>
+> **Dependency rule:** If your Rust code imports `azure_core` types directly (for example, `azure_core::http::Url`, `azure_core::http::RequestContent`, or `azure_core::error::ErrorKind`), add `azure_core` to `Cargo.toml`. If you only use types re-exported by service crates, a direct `azure_core` dependency is optional.
+
+### Installation (Rust)
+
+For Rust SDK skills, include the Installation section as:
+
+```markdown
+## Installation
+
+\`\`\`sh
+cargo add <crate1> <crate2> <crate3> ...
+\`\`\`
+
+> If your code uses \`azure_core\` types directly (for example, \`azure_core::http::Url\` or \`azure_core::http::RequestContent\`), add \`azure_core\` to \`Cargo.toml\`. If you only use types re-exported by service crates, direct \`azure_core\` dependency is optional.
+```
+
+**Key points:**
+
+- Always use `cargo add`, never show `Cargo.toml` manual edits
+- List all direct dependencies needed for the examples in the skill
+- Include the optional note about `azure_core` (copy verbatim) so users understand when to add it explicitly
+- If examples use `RequestContent::from()`, include `azure_core` in the install list since that's a direct `azure_core` type usage
+
+### Regenerating Rust SDK Skills from Latest Sources
+
+When a Rust skill appears stale (wrong signatures, outdated examples, deprecated guidance),
+regenerate it from current upstream sources before editing anything else.
+
+1. Collect authoritative sources:
+    - crate README: `sdk/<service>/<crate>/README.md`
+    - executable examples: `sdk/<service>/<crate>/examples/*.rs`
+    - if needed, public API surface in `src/clients` / `src/generated`
+
+2. Rebuild skill snippets from those sources:
+    - prefer README + examples over ad-hoc internet snippets
+    - align constructor signatures, async patterns, pager/poller usage, and error handling
+    - keep crate guidance strict: official `azure_*` crates published by `azure-sdk`
+
+3. Re-validate quality gates:
+    - run harness scenarios for the affected skill
+    - run Vally eval if the skill has one (for example, `tests/scenarios/azure-storage-blob-rust/vally/eval.yaml`)
+
+4. Update reference links in the skill to the exact crate docs and source directory used.
 
 ### Crate Naming
 
@@ -522,7 +566,7 @@ try {
 use azure_security_keyvault_secrets::SecretClient;
 use azure_security_keyvault_keys::KeyClient;
 use azure_security_keyvault_certificates::CertificateClient;
-use azure_storage_blob::BlobServiceClient;
+use azure_storage_blob::BlobClient;
 use azure_data_cosmos::CosmosClient;
 use azure_messaging_eventhubs::ProducerClient;
 ```
@@ -549,7 +593,6 @@ let secret = client.get_secret("secret-name", None).await?.into_model()?;
 println!("Secret: {:?}", secret.value);
 ```
 
-#### Storage Blob: `BlobServiceClient::new()` + derived clients
 
 ```rust
 use azure_core::http::Url;
@@ -557,21 +600,18 @@ use azure_identity::DeveloperToolsCredential;
 use azure_storage_blob::BlobServiceClient;
 
 let credential = DeveloperToolsCredential::new(None)?;
-let service_url = Url::parse("https://<storage_account_name>.blob.core.windows.net/")?;
 let service_client = BlobServiceClient::new(service_url, Some(credential), None)?;
 let blob_client = service_client.blob_client("<container_name>", "<blob_name>");
 ```
 
-#### Cosmos DB: Builder pattern with `CosmosAccountReference`
 
 ```rust
 use azure_identity::DeveloperToolsCredential;
-use azure_data_cosmos::{CosmosClient, CosmosAccountReference, CosmosAccountEndpoint};
+use azure_data_cosmos::{CosmosClient, AccountReference, AccountEndpoint};
 
-let credential: std::sync::Arc<dyn azure_core::credentials::TokenCredential> =
-    DeveloperToolsCredential::new(None)?;
-let endpoint: CosmosAccountEndpoint = "https://myaccount.documents.azure.com/".parse()?;
-let account = CosmosAccountReference::with_credential(endpoint, credential);
+let credential = DeveloperToolsCredential::new(None)?;
+let endpoint: AccountEndpoint = "https://myaccount.documents.azure.com/".parse()?;
+let account = AccountReference::with_credential(endpoint, credential);
 let cosmos_client = CosmosClient::builder().build(account).await?;
 ```
 
@@ -605,12 +645,13 @@ let (status, headers, body) = response.deconstruct();
 ```rust
 use futures::TryStreamExt;
 
-// Key Vault Secrets/Keys/Certificates — Pager implements Stream, iterate directly
+// Iterate all items across all pages
 let mut pager = client.list_secret_properties(None)?;
 while let Some(secret) = pager.try_next().await? {
     let name = secret.resource_id()?.name;
     println!("Found Secret: {}", name);
 }
+
 ```
 
 The `ResourceExt` trait provides `resource_id()` for parsing names and versions from resource IDs:
@@ -678,7 +719,8 @@ Storage client error handling uses `StorageError`:
 
 ```rust
 use azure_core::error::ErrorKind;
-use azure_storage_blob::{StorageError, StorageErrorCode};
+use azure_storage_blob::StorageError;
+use azure_storage_blob::models::StorageErrorCode;
 
 match blob_client.download(None).await {
     Ok(response) => { /* process response */ }
@@ -698,6 +740,8 @@ match blob_client.download(None).await {
     }
 }
 ```
+
+Note that `StorageError::try_into` requires an owned error object, it will not compile if handed a reference to an error.
 
 ### Model Types
 
@@ -720,128 +764,6 @@ struct Item {
     pub id: String,
     pub partition_key: String,
     pub value: String,
-}
-```
-
-### Service-Specific Patterns
-
-#### Key Vault Secrets: CRUD
-
-```rust
-use azure_security_keyvault_secrets::{models::SetSecretParameters, ResourceExt};
-
-// Create/update a secret
-let params = SetSecretParameters {
-    value: Some("secret-value".into()),
-    ..Default::default()
-};
-let secret = client.set_secret("name", params.try_into()?, None).await?.into_model()?;
-
-// Get a secret
-let secret = client.get_secret("name", None).await?.into_model()?;
-
-// Delete a secret
-client.delete_secret("name", None).await?;
-```
-
-#### Key Vault Keys: Create, Encrypt, Wrap
-
-```rust
-use azure_security_keyvault_keys::models::{
-    CreateKeyParameters, KeyType, CurveName,
-    KeyOperationParameters, EncryptionAlgorithm,
-};
-
-// Create an EC key
-let body = CreateKeyParameters {
-    kty: Some(KeyType::Ec),
-    curve: Some(CurveName::P256),
-    ..Default::default()
-};
-let key = client.create_key("key-name", body.try_into()?, None).await?.into_model()?;
-
-// Wrap a key (envelope encryption)
-let params = KeyOperationParameters {
-    algorithm: Some(EncryptionAlgorithm::RsaOaep256),
-    value: Some(data_encryption_key.clone()),
-    ..Default::default()
-};
-let wrapped = client.wrap_key("key-name", params.try_into()?, None).await?.into_model()?;
-```
-
-#### Storage Blob: Upload and Download
-
-```rust
-use azure_core::http::RequestContent;
-
-// Upload a blob
-let data = b"hello world";
-blob_client.upload(RequestContent::from(data.to_vec()), None).await?;
-
-// Download a blob
-let response = blob_client.download(None).await?;
-let data = String::from_utf8(response.body.collect().await?.into())?;
-println!("Downloaded: {data}");
-```
-
-#### Cosmos DB: Document CRUD
-
-```rust
-let container = cosmos_client.database_client("myDatabase").container_client("myContainer").await;
-
-// Create an item
-container.create_item("partition1", item, None).await?;
-
-// Read an item
-let item_response = container.read_item("partition1", "1", None).await?;
-let mut item: Item = item_response.into_model()?;
-
-// Replace an item
-item.value = "updated".into();
-container.replace_item("partition1", "1", item, None).await?;
-
-// Delete an item
-container.delete_item("partition1", "1", None).await?;
-```
-
-#### Event Hubs: Send and Receive
-
-```rust
-// Send events directly
-producer.send_event(vec![1, 2, 3, 4], None).await?;
-
-// Send events using a batch
-let batch = producer.create_batch(None).await?;
-batch.try_add_event_data(vec![1, 2, 3, 4], None)?;
-producer.send_batch(batch, None).await?;
-
-// Receive events from a partition
-use futures::stream::StreamExt;
-use azure_messaging_eventhubs::{ConsumerClient, OpenReceiverOptions, StartLocation, StartPosition};
-
-let consumer = ConsumerClient::builder()
-    .open("<EVENTHUBS_HOST>", "<EVENTHUB_NAME>", credential.clone())
-    .await?;
-
-let receiver = consumer
-    .open_receiver_on_partition(
-        "0".to_string(),
-        Some(OpenReceiverOptions {
-            start_position: Some(StartPosition {
-                location: StartLocation::Earliest,
-                ..Default::default()
-            }),
-            ..Default::default()
-        }),
-    )
-    .await?;
-
-let mut event_stream = receiver.stream_events();
-while let Some(event_result) = event_stream.next().await {
-    match event_result {
-        Ok(event) => println!("Received: {:?}", event),
-        Err(err) => eprintln!("Error: {:?}", err),
-    }
 }
 ```
 
@@ -923,7 +845,7 @@ let credential = DeveloperToolsCredential::new(None)?;
 let client = SecretClient::new(endpoint, credential.clone(), None)?;
 
 // Cosmos DB: Builder pattern
-let account = CosmosAccountReference::with_credential(endpoint.parse()?, credential);
+let account = AccountReference::with_credential(endpoint.parse()?, credential);
 let cosmos_client = CosmosClient::builder().build(account).await?;
 
 // Event Hubs: Builder with open()

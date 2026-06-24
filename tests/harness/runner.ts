@@ -75,17 +75,19 @@ export class SkillEvaluationRunner {
   private criteriaLoader: AcceptanceCriteriaLoader;
   private copilotClient: SkillCopilotClient;
 
-  constructor(options: {
-    basePath?: string;
-    useMock?: boolean;
-    verbose?: boolean;
-  } = {}) {
+  constructor(
+    options: {
+      basePath?: string;
+      useMock?: boolean;
+      verbose?: boolean;
+    } = {},
+  ) {
     this.basePath = options.basePath ?? this.findRepoRoot();
     // Scenarios are in tests/scenarios relative to repo root
     this.scenariosDir = join(
       this.basePath,
       "tests",
-      SkillEvaluationRunner.SCENARIOS_DIR
+      SkillEvaluationRunner.SCENARIOS_DIR,
     );
     this.useMock = options.useMock ?? true;
     this.verbose = options.verbose ?? false;
@@ -121,7 +123,7 @@ export class SkillEvaluationRunner {
    */
   listAvailableSkills(): string[] {
     const skillsWithCriteria = new Set(
-      this.criteriaLoader.listSkillsWithCriteria()
+      this.criteriaLoader.listSkillsWithCriteria(),
     );
     const skillsWithScenarios = new Set<string>();
 
@@ -133,7 +135,7 @@ export class SkillEvaluationRunner {
           const scenariosFile = join(
             this.scenariosDir,
             entry.name,
-            "scenarios.yaml"
+            "scenarios.yaml",
           );
           if (existsSync(scenariosFile)) {
             skillsWithScenarios.add(entry.name);
@@ -144,7 +146,7 @@ export class SkillEvaluationRunner {
 
     // Intersection of both sets
     const available = [...skillsWithCriteria].filter((s) =>
-      skillsWithScenarios.has(s)
+      skillsWithScenarios.has(s),
     );
     return available.sort();
   }
@@ -242,7 +244,7 @@ export class SkillEvaluationRunner {
    */
   async run(
     skillName: string,
-    scenarioFilter?: string
+    scenarioFilter?: string,
   ): Promise<EvaluationSummary> {
     const startTime = Date.now();
 
@@ -257,7 +259,7 @@ export class SkillEvaluationRunner {
       scenarios = scenarios.filter(
         (s) =>
           s.name.toLowerCase().includes(filterLower) ||
-          s.tags.some((t) => t.toLowerCase().includes(filterLower))
+          s.tags.some((t) => t.toLowerCase().includes(filterLower)),
       );
     }
 
@@ -274,7 +276,10 @@ export class SkillEvaluationRunner {
 
       // Setup mock response if provided
       if (scenario.mockResponse && this.useMock) {
-        this.copilotClient.addMockResponse(scenario.name, scenario.mockResponse);
+        this.copilotClient.addMockResponse(
+          scenario.name,
+          scenario.mockResponse,
+        );
       }
 
       // Generate code
@@ -282,7 +287,7 @@ export class SkillEvaluationRunner {
         scenario.prompt,
         skillName,
         suite.config,
-        scenario.name
+        scenario.name,
       );
 
       // Evaluate
@@ -326,7 +331,7 @@ export class SkillEvaluationRunner {
   private checkScenarioPatterns(
     result: EvaluationResult,
     scenario: TestScenario,
-    code: string
+    code: string,
   ): void {
     // Check expected patterns
     for (const pattern of scenario.expectedPatterns) {
@@ -336,7 +341,7 @@ export class SkillEvaluationRunner {
             severity: Severity.WARNING,
             rule: `scenario:${scenario.name}`,
             message: `Expected pattern not found: ${pattern}`,
-          })
+          }),
         );
         result.warningCount++;
       }
@@ -350,7 +355,7 @@ export class SkillEvaluationRunner {
             severity: Severity.ERROR,
             rule: `scenario:${scenario.name}`,
             message: `Forbidden pattern found: ${pattern}`,
-          })
+          }),
         );
         result.errorCount++;
         result.passed = false;
@@ -373,7 +378,9 @@ export class SkillEvaluationRunner {
     return Math.max(0, Math.min(100, score));
   }
 
-  private getSeverityStyle(severity: Severity | string): (text: string) => string {
+  private getSeverityStyle(
+    severity: Severity | string,
+  ): (text: string) => string {
     const severityValue = typeof severity === "string" ? severity : severity;
     switch (severityValue) {
       case "error":
@@ -392,7 +399,7 @@ export class SkillEvaluationRunner {
     const severityLabel = finding.severity.toUpperCase();
 
     console.log(
-      `      ${severityStyle(`[${severityLabel}]`)} ${finding.rule}: ${finding.message}`
+      `      ${severityStyle(`[${severityLabel}]`)} ${finding.rule}: ${finding.message}`,
     );
 
     if (finding.suggestion) {
@@ -415,7 +422,10 @@ export class SkillEvaluationRunner {
     }
   }
 
-  private printScenarioPatternChecks(code: string, scenario: TestScenario): void {
+  private printScenarioPatternChecks(
+    code: string,
+    scenario: TestScenario,
+  ): void {
     const expectedPatterns = scenario.expectedPatterns ?? [];
     const forbiddenPatterns = scenario.forbiddenPatterns ?? [];
 
@@ -440,7 +450,7 @@ export class SkillEvaluationRunner {
 
   private printAcceptanceCriteriaMatches(
     matchedCorrect: string[],
-    matchedIncorrect: string[]
+    matchedIncorrect: string[],
   ): void {
     const uniqueCorrect = Array.from(new Set(matchedCorrect));
     const uniqueIncorrect = Array.from(new Set(matchedIncorrect));
@@ -452,43 +462,45 @@ export class SkillEvaluationRunner {
     console.log("    Acceptance criteria:");
     if (uniqueCorrect.length > 0) {
       console.log(
-        `      ${chalk.green("✓")} Matched sections: ${uniqueCorrect.join(", ")}`
+        `      ${chalk.green("✓")} Matched sections: ${uniqueCorrect.join(", ")}`,
       );
     }
     if (uniqueIncorrect.length > 0) {
       console.log(
-        `      ${chalk.red("✗")} Incorrect sections: ${uniqueIncorrect.join(", ")}`
+        `      ${chalk.red("✗")} Incorrect sections: ${uniqueIncorrect.join(", ")}`,
       );
     }
   }
 
   private printVerboseScenarioResult(
     result: EvaluationResult,
-    scenario: TestScenario
+    scenario: TestScenario,
   ): void {
     this.printScenarioPatternChecks(result.generatedCode, scenario);
     this.printAcceptanceCriteriaMatches(
       result.matchedCorrect,
-      result.matchedIncorrect
+      result.matchedIncorrect,
     );
     this.printFindings(result.findings);
   }
 
   private printVerboseRalphResult(
     result: RalphLoopResult,
-    scenario: TestScenario
+    scenario: TestScenario,
   ): void {
     if (result.iterations.length === 0) {
       return;
     }
 
     const scoreTrail = result.iterations
-      .map((iteration) => `#${iteration.iteration} ${iteration.score.toFixed(1)}`)
+      .map(
+        (iteration) => `#${iteration.iteration} ${iteration.score.toFixed(1)}`,
+      )
       .join(" → ");
 
     console.log(`    Iterations: ${scoreTrail}`);
     console.log(
-      `    Improvement: ${result.improvement >= 0 ? "+" : ""}${result.improvement.toFixed(1)} pts`
+      `    Improvement: ${result.improvement >= 0 ? "+" : ""}${result.improvement.toFixed(1)} pts`,
     );
 
     const lastIteration = result.iterations[result.iterations.length - 1];
@@ -502,7 +514,7 @@ export class SkillEvaluationRunner {
   async runWithLoop(
     skillName: string,
     scenarioFilter?: string,
-    config?: Partial<RalphLoopConfig>
+    config?: Partial<RalphLoopConfig>,
   ): Promise<RalphLoopSummary> {
     const startTime = Date.now();
 
@@ -515,7 +527,7 @@ export class SkillEvaluationRunner {
       scenarios = scenarios.filter(
         (s) =>
           s.name.toLowerCase().includes(filterLower) ||
-          s.tags.some((t) => t.toLowerCase().includes(filterLower))
+          s.tags.some((t) => t.toLowerCase().includes(filterLower)),
       );
     }
 
@@ -525,7 +537,7 @@ export class SkillEvaluationRunner {
       criteria,
       evaluator,
       this.copilotClient,
-      ralphConfig
+      ralphConfig,
     );
 
     const scenarioResults = new Map<string, RalphLoopResult>();
@@ -538,7 +550,10 @@ export class SkillEvaluationRunner {
       }
 
       if (scenario.mockResponse && this.useMock) {
-        this.copilotClient.addMockResponse(scenario.name, scenario.mockResponse);
+        this.copilotClient.addMockResponse(
+          scenario.name,
+          scenario.mockResponse,
+        );
       }
 
       const result = await controller.run(scenario.prompt, scenario.name);
@@ -552,7 +567,7 @@ export class SkillEvaluationRunner {
       if (this.verbose) {
         const status = result.converged ? chalk.green("✓") : chalk.yellow("○");
         console.log(
-          `    ${status} Score: ${result.finalScore.toFixed(1)} (${result.iterations.length} iterations, ${result.stopReason})`
+          `    ${status} Score: ${result.finalScore.toFixed(1)} (${result.iterations.length} iterations, ${result.stopReason})`,
         );
         this.printVerboseRalphResult(result, scenario);
       }
@@ -605,6 +620,7 @@ function summaryToDict(summary: EvaluationSummary): Record<string, unknown> {
     results: summary.results.map((r) => ({
       skill_name: r.skillName,
       scenario: r.scenario,
+      generated_code: r.generatedCode,
       passed: r.passed,
       score: r.score,
       error_count: r.errorCount,
@@ -625,7 +641,9 @@ function summaryToDict(summary: EvaluationSummary): Record<string, unknown> {
 /**
  * Convert all-skills summary to a plain object for JSON serialization.
  */
-function allSkillsSummaryToDict(summary: AllSkillsSummary): Record<string, unknown> {
+function allSkillsSummaryToDict(
+  summary: AllSkillsSummary,
+): Record<string, unknown> {
   return {
     total_skills: summary.totalSkills,
     passed_skills: summary.passedSkills,
@@ -636,7 +654,7 @@ function allSkillsSummaryToDict(summary: AllSkillsSummary): Record<string, unkno
     avg_score: summary.avgScore,
     duration_ms: summary.durationMs,
     mode: summary.mode,
-    skills: summary.skills.map(s => summaryToDict(s)),
+    skills: summary.skills.map((s) => summaryToDict(s)),
   };
 }
 
@@ -645,14 +663,14 @@ function allSkillsSummaryToDict(summary: AllSkillsSummary): Record<string, unkno
  */
 function formatAllSkillsMarkdown(summary: AllSkillsSummary): string {
   const lines: string[] = [];
-  
+
   // Header
   lines.push("# Skill Evaluation Results");
   lines.push("");
   lines.push(`**Mode:** ${summary.mode}`);
   lines.push(`**Duration:** ${(summary.durationMs / 1000).toFixed(1)}s`);
   lines.push("");
-  
+
   // Summary stats
   lines.push("## Summary");
   lines.push("");
@@ -661,80 +679,92 @@ function formatAllSkillsMarkdown(summary: AllSkillsSummary): string {
   lines.push(`| Total Skills | ${summary.totalSkills} |`);
   lines.push(`| Passed Skills | ${summary.passedSkills} |`);
   lines.push(`| Failed Skills | ${summary.failedSkills} |`);
-  lines.push(`| Pass Rate | ${((summary.passedSkills / summary.totalSkills) * 100).toFixed(1)}% |`);
+  lines.push(
+    `| Pass Rate | ${((summary.passedSkills / summary.totalSkills) * 100).toFixed(1)}% |`,
+  );
   lines.push(`| Total Scenarios | ${summary.totalScenarios} |`);
   lines.push(`| Passed Scenarios | ${summary.passedScenarios} |`);
   lines.push(`| Average Score | ${summary.avgScore.toFixed(1)} |`);
   lines.push("");
-  
+
   // Skills table
   lines.push("## Skills");
   lines.push("");
   lines.push("| Skill | Scenarios | Passed | Failed | Score | Status |");
   lines.push("|-------|-----------|--------|--------|-------|--------|");
-  
+
   for (const skill of summary.skills) {
-    const passRate = skill.totalScenarios > 0 
-      ? ((skill.passed / skill.totalScenarios) * 100).toFixed(0)
-      : "N/A";
+    const passRate =
+      skill.totalScenarios > 0
+        ? ((skill.passed / skill.totalScenarios) * 100).toFixed(0)
+        : "N/A";
     const status = skill.failed === 0 ? "✅" : "❌";
     lines.push(
-      `| ${skill.skillName} | ${skill.totalScenarios} | ${skill.passed} | ${skill.failed} | ${skill.avgScore.toFixed(1)} (${passRate}%) | ${status} |`
+      `| ${skill.skillName} | ${skill.totalScenarios} | ${skill.passed} | ${skill.failed} | ${skill.avgScore.toFixed(1)} (${passRate}%) | ${status} |`,
     );
   }
-  
+
   // Failed skills details (if any)
-  const failedSkills = summary.skills.filter(s => s.failed > 0);
+  const failedSkills = summary.skills.filter((s) => s.failed > 0);
   if (failedSkills.length > 0) {
     lines.push("");
     lines.push("## Failed Scenarios");
     lines.push("");
-    
-      for (const skill of failedSkills) {
-        lines.push(`### ${skill.skillName}`);
-        lines.push("");
-        for (const result of skill.results) {
-          if (!result.passed) {
-            lines.push(`- **${result.scenario}** (score: ${result.score.toFixed(1)})`);
-            if (result.findings.length > 0) {
-              const errors = result.findings.filter(f => f.severity === Severity.ERROR);
-              const warnings = result.findings.filter(f => f.severity === Severity.WARNING);
-              const infos = result.findings.filter(f => f.severity === Severity.INFO);
-              const ordered = [...errors, ...warnings, ...infos].slice(0, 5);
-              for (const finding of ordered) {
-                const severity = finding.severity.toUpperCase();
-                lines.push(`  - [${severity}] ${finding.message}`);
-                if (finding.suggestion) {
-                  lines.push(`    - 💡 ${finding.suggestion}`);
-                }
-              }
-            }
-            if (result.matchedIncorrect.length > 0) {
-              lines.push("  - Incorrect sections:");
-              for (const section of result.matchedIncorrect) {
-                lines.push(`    - ${section}`);
-              }
-            }
-            if (result.matchedCorrect.length > 0) {
-              lines.push("  - Matched sections:");
-              for (const section of result.matchedCorrect) {
-                lines.push(`    - ${section}`);
+
+    for (const skill of failedSkills) {
+      lines.push(`### ${skill.skillName}`);
+      lines.push("");
+      for (const result of skill.results) {
+        if (!result.passed) {
+          lines.push(
+            `- **${result.scenario}** (score: ${result.score.toFixed(1)})`,
+          );
+          if (result.findings.length > 0) {
+            const errors = result.findings.filter(
+              (f) => f.severity === Severity.ERROR,
+            );
+            const warnings = result.findings.filter(
+              (f) => f.severity === Severity.WARNING,
+            );
+            const infos = result.findings.filter(
+              (f) => f.severity === Severity.INFO,
+            );
+            const ordered = [...errors, ...warnings, ...infos].slice(0, 5);
+            for (const finding of ordered) {
+              const severity = finding.severity.toUpperCase();
+              lines.push(`  - [${severity}] ${finding.message}`);
+              if (finding.suggestion) {
+                lines.push(`    - 💡 ${finding.suggestion}`);
               }
             }
           }
+          if (result.matchedIncorrect.length > 0) {
+            lines.push("  - Incorrect sections:");
+            for (const section of result.matchedIncorrect) {
+              lines.push(`    - ${section}`);
+            }
+          }
+          if (result.matchedCorrect.length > 0) {
+            lines.push("  - Matched sections:");
+            for (const section of result.matchedCorrect) {
+              lines.push(`    - ${section}`);
+            }
+          }
         }
-        lines.push("");
       }
+      lines.push("");
+    }
   }
-  
+
   return lines.join("\n");
 }
 
 function convertRalphToSummary(ralph: RalphLoopSummary): EvaluationSummary {
   const results: EvaluationResult[] = [];
-  
+
   for (const [scenarioName, loopResult] of ralph.scenarioResults) {
-    const lastIteration = loopResult.iterations[loopResult.iterations.length - 1];
+    const lastIteration =
+      loopResult.iterations[loopResult.iterations.length - 1];
     if (lastIteration) {
       results.push({
         skillName: ralph.skillName,
@@ -745,8 +775,12 @@ function convertRalphToSummary(ralph: RalphLoopSummary): EvaluationSummary {
         matchedIncorrect: [],
         score: lastIteration.score,
         passed: loopResult.converged,
-        errorCount: lastIteration.findings.filter(f => f.severity === Severity.ERROR).length,
-        warningCount: lastIteration.findings.filter(f => f.severity === Severity.WARNING).length,
+        errorCount: lastIteration.findings.filter(
+          (f) => f.severity === Severity.ERROR,
+        ).length,
+        warningCount: lastIteration.findings.filter(
+          (f) => f.severity === Severity.WARNING,
+        ).length,
       });
     }
   }
@@ -807,8 +841,16 @@ async function main(): Promise<number> {
     .option("--output <format>", "Output format (text/json/markdown)", "text")
     .option("--output-file <file>", "Write results to file")
     .option("--ralph", "Enable Ralph Loop iterative improvement mode")
-    .option("--max-iterations <n>", "Max iterations for Ralph Loop (default: 5)", parseInt)
-    .option("--threshold <n>", "Quality threshold for Ralph Loop (default: 80)", parseInt);
+    .option(
+      "--max-iterations <n>",
+      "Max iterations for Ralph Loop (default: 5)",
+      parseInt,
+    )
+    .option(
+      "--threshold <n>",
+      "Quality threshold for Ralph Loop (default: 80)",
+      parseInt,
+    );
 
   program.parse();
 
@@ -834,7 +876,7 @@ async function main(): Promise<number> {
     const skills = runner.listAvailableSkills();
     if (skills.length === 0) {
       console.log(
-        "No skills with both acceptance criteria and test scenarios found."
+        "No skills with both acceptance criteria and test scenarios found.",
       );
       console.log("\nSkills with criteria only:");
       for (const skill of runner.listSkillsWithCriteria()) {
@@ -852,12 +894,20 @@ async function main(): Promise<number> {
   if (options.all) {
     const skills = runner.listAvailableSkills();
     if (skills.length === 0) {
-      console.log(chalk.red("No skills with both acceptance criteria and test scenarios found."));
+      console.log(
+        chalk.red(
+          "No skills with both acceptance criteria and test scenarios found.",
+        ),
+      );
       return 1;
     }
 
-    console.log(`Running evaluation on ${chalk.cyan(skills.length.toString())} skills`);
-    console.log(`Mode: ${useMock ? chalk.yellow("mock") : chalk.green("copilot")}`);
+    console.log(
+      `Running evaluation on ${chalk.cyan(skills.length.toString())} skills`,
+    );
+    console.log(
+      `Mode: ${useMock ? chalk.yellow("mock") : chalk.green("copilot")}`,
+    );
     console.log("-".repeat(50));
 
     const startTime = Date.now();
@@ -884,15 +934,21 @@ async function main(): Promise<number> {
         } else {
           failedSkills++;
           if (options.verbose) {
-            console.log(`  Failed scenarios: ${summary.failed}/${summary.totalScenarios}`);
+            console.log(
+              `  Failed scenarios: ${summary.failed}/${summary.totalScenarios}`,
+            );
             for (const result of summary.results) {
               if (!result.passed) {
-                console.log(`    - ${result.scenario} (score: ${result.score.toFixed(1)})`);
+                console.log(
+                  `    - ${result.scenario} (score: ${result.score.toFixed(1)})`,
+                );
                 const errors = result.findings.filter(
-                  (finding) => finding.severity === Severity.ERROR
+                  (finding) => finding.severity === Severity.ERROR,
                 );
                 for (const error of errors.slice(0, 3)) {
-                  console.log(`        ${chalk.red("[ERROR]")} ${error.message}`);
+                  console.log(
+                    `        ${chalk.red("[ERROR]")} ${error.message}`,
+                  );
                   if (error.suggestion) {
                     console.log(`          💡 ${error.suggestion}`);
                   }
@@ -901,7 +957,9 @@ async function main(): Promise<number> {
             }
           }
           if (!options.verbose) {
-            console.log(chalk.red(`✗ ${summary.passed}/${summary.totalScenarios}`));
+            console.log(
+              chalk.red(`✗ ${summary.passed}/${summary.totalScenarios}`),
+            );
           }
         }
       } catch (err) {
@@ -925,12 +983,17 @@ async function main(): Promise<number> {
     }
 
     const durationMs = Date.now() - startTime;
-    const totalScenarios = skillResults.reduce((sum, s) => sum + s.totalScenarios, 0);
+    const totalScenarios = skillResults.reduce(
+      (sum, s) => sum + s.totalScenarios,
+      0,
+    );
     const passedScenarios = skillResults.reduce((sum, s) => sum + s.passed, 0);
     const failedScenarios = skillResults.reduce((sum, s) => sum + s.failed, 0);
-    const avgScore = skillResults.length > 0
-      ? skillResults.reduce((sum, s) => sum + s.avgScore, 0) / skillResults.length
-      : 0;
+    const avgScore =
+      skillResults.length > 0
+        ? skillResults.reduce((sum, s) => sum + s.avgScore, 0) /
+          skillResults.length
+        : 0;
 
     const allSummary: AllSkillsSummary = {
       totalSkills: skills.length,
@@ -967,8 +1030,10 @@ async function main(): Promise<number> {
       if (failedSkills > 0) {
         lines.push("");
         lines.push(chalk.red("Failed Skills:"));
-        for (const skill of skillResults.filter(s => s.failed > 0)) {
-          lines.push(`  - ${skill.skillName}: ${skill.passed}/${skill.totalScenarios} passed (score: ${skill.avgScore.toFixed(1)})`);
+        for (const skill of skillResults.filter((s) => s.failed > 0)) {
+          lines.push(
+            `  - ${skill.skillName}: ${skill.passed}/${skill.totalScenarios} passed (score: ${skill.avgScore.toFixed(1)})`,
+          );
         }
       }
 
@@ -992,11 +1057,16 @@ async function main(): Promise<number> {
 
   // Run evaluation
   console.log(`Evaluating skill: ${chalk.cyan(skillArg)}`);
-  console.log(`Mode: ${useMock ? chalk.yellow("mock") : chalk.green("copilot")}`);
+  console.log(
+    `Mode: ${useMock ? chalk.yellow("mock") : chalk.green("copilot")}`,
+  );
   if (options.ralph) {
     const maxIter = options.maxIterations ?? DEFAULT_RALPH_CONFIG.maxIterations;
-    const threshold = options.threshold ?? DEFAULT_RALPH_CONFIG.qualityThreshold;
-    console.log(`Ralph Loop: ${chalk.cyan("enabled")} (max ${maxIter} iterations, threshold ${threshold})`);
+    const threshold =
+      options.threshold ?? DEFAULT_RALPH_CONFIG.qualityThreshold;
+    console.log(
+      `Ralph Loop: ${chalk.cyan("enabled")} (max ${maxIter} iterations, threshold ${threshold})`,
+    );
   }
   console.log("-".repeat(50));
 
@@ -1006,8 +1076,10 @@ async function main(): Promise<number> {
   try {
     if (options.ralph) {
       ralphSummary = await runner.runWithLoop(skillArg, options.filter, {
-        maxIterations: options.maxIterations ?? DEFAULT_RALPH_CONFIG.maxIterations,
-        qualityThreshold: options.threshold ?? DEFAULT_RALPH_CONFIG.qualityThreshold,
+        maxIterations:
+          options.maxIterations ?? DEFAULT_RALPH_CONFIG.maxIterations,
+        qualityThreshold:
+          options.threshold ?? DEFAULT_RALPH_CONFIG.qualityThreshold,
       });
       summary = convertRalphToSummary(ralphSummary);
     } else {
@@ -1045,9 +1117,15 @@ async function main(): Promise<number> {
     if (ralphSummary) {
       lines.push("");
       lines.push(chalk.cyan("Ralph Loop Stats:"));
-      lines.push(`  Converged: ${ralphSummary.scenariosConverged}/${ralphSummary.scenariosRun}`);
-      lines.push(`  Avg Iterations: ${ralphSummary.avgIterationsToConverge.toFixed(1)}`);
-      lines.push(`  Avg Improvement: ${ralphSummary.avgImprovement >= 0 ? "+" : ""}${ralphSummary.avgImprovement.toFixed(1)} pts`);
+      lines.push(
+        `  Converged: ${ralphSummary.scenariosConverged}/${ralphSummary.scenariosRun}`,
+      );
+      lines.push(
+        `  Avg Iterations: ${ralphSummary.avgIterationsToConverge.toFixed(1)}`,
+      );
+      lines.push(
+        `  Avg Improvement: ${ralphSummary.avgImprovement >= 0 ? "+" : ""}${ralphSummary.avgImprovement.toFixed(1)} pts`,
+      );
     }
 
     if (summary.failed > 0) {
@@ -1059,7 +1137,7 @@ async function main(): Promise<number> {
           for (const finding of result.findings) {
             if (finding.severity === Severity.ERROR) {
               lines.push(
-                `      ${chalk.red(`[${finding.severity}]`)} ${finding.message}`
+                `      ${chalk.red(`[${finding.severity}]`)} ${finding.message}`,
               );
             }
           }

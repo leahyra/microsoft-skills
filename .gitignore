@@ -301,6 +301,7 @@ temp/
 # AI Agent Working Files
 # =============================================================================
 .sisyphus/
+/vally-experiment-results/
 # Astro build artifacts
 docs/data-store.json
 docs/settings.json

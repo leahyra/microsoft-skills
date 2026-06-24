@@ -3,7 +3,7 @@
 # Each scenario tests a specific usage pattern against acceptance criteria
 
 config:
-  model: gpt-4
+  model: claude-sonnet-4.6
   max_tokens: 2000
   temperature: 0.3
 
@@ -67,7 +67,7 @@ scenarios:
       use azure_security_keyvault_keys::models::{CreateKeyParameters, KeyType};
 
       let params = CreateKeyParameters {
-          kty: KeyType::Rsa,
+          kty: Some(KeyType::Rsa),
           key_size: Some(2048),
           ..Default::default()
       };
@@ -94,7 +94,7 @@ scenarios:
       use azure_security_keyvault_keys::models::{CreateKeyParameters, KeyType, CurveName};
 
       let params = CreateKeyParameters {
-          kty: KeyType::Ec,
+          kty: Some(KeyType::Ec),
           curve: Some(CurveName::P256),
           ..Default::default()
       };

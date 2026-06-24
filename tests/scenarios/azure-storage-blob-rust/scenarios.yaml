@@ -3,7 +3,7 @@
 # Each scenario tests a specific usage pattern against acceptance criteria
 
 config:
-  model: gpt-4
+  model: claude-sonnet-4.6
   max_tokens: 2000
   temperature: 0.3
 
@@ -14,26 +14,28 @@ scenarios:
       Microsoft Entra ID authentication.
     expected_patterns:
       - "DeveloperToolsCredential"
-      - "BlobClient"
+      - "BlobServiceClient"
       - "blob.core.windows.net"
     forbidden_patterns:
       - "connection_string"
       - "account_key"
+      - "azure_storage_blobs"
     tags:
       - basic
       - authentication
     mock_response: |
+      use azure_core::http::Url;
       use azure_identity::DeveloperToolsCredential;
-      use azure_storage_blob::{BlobClient, BlobClientOptions};
+      use azure_storage_blob::BlobServiceClient;
 
       let credential = DeveloperToolsCredential::new(None)?;
-      let blob_client = BlobClient::new(
-          "https://<account>.blob.core.windows.net/",
-          "container-name",
-          "blob-name",
+      let service_url = Url::parse("https://<account>.blob.core.windows.net/")?;
+      let service_client = BlobServiceClient::new(
+          service_url,
           Some(credential),
-          None
+          None,
       )?;
+      let blob_client = service_client.blob_client("container-name", "blob-name");
 
   - name: upload_blob
     prompt: |
@@ -41,9 +43,9 @@ scenarios:
     expected_patterns:
       - "upload"
       - "RequestContent"
-      - "overwrite"
     forbidden_patterns:
       - "download"
+      - "azure_storage_blobs"
     tags:
       - upload
       - write
@@ -52,12 +54,7 @@ scenarios:
 
       let data = b"hello world";
       blob_client
-          .upload(
-              RequestContent::from(data.to_vec()),
-              false,  // overwrite
-              u64::try_from(data.len())?,
-              None,
-          )
+        .upload(RequestContent::from(data.to_vec()), None)
           .await?;
 
   - name: download_blob
@@ -65,16 +62,17 @@ scenarios:
       Download a blob from Azure Storage and get its content as bytes.
     expected_patterns:
       - "download"
-      - "into_body"
+      - "body"
       - "collect"
     forbidden_patterns:
       - "upload"
+      - "azure_storage_blobs"
     tags:
       - download
       - read
     mock_response: |
       let response = blob_client.download(None).await?;
-      let content = response.into_body().collect_bytes().await?;
+      let content = response.body.collect().await?;
       println!("Content: {:?}", content);
 
   - name: get_blob_properties
@@ -84,6 +82,7 @@ scenarios:
       - "get_properties"
     forbidden_patterns:
       - "set_properties"
+      - "azure_storage_blobs"
     tags:
       - properties
       - metadata
@@ -98,6 +97,7 @@ scenarios:
       - "delete"
     forbidden_patterns:
       - "create"
+      - "azure_storage_blobs"
     tags:
       - delete
     mock_response: |

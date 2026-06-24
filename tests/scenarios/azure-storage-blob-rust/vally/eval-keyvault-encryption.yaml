@@ -1,0 +1,184 @@
+name: azure-storage-blob-rust-keyvault-encryption-eval
+description: Evaluation suite for Rust library using Blob Storage with Key Vault-backed encryption at rest
+version: "1.0"
+type: capability
+scoring:
+  weights: {}
+  threshold: 1.0
+defaults:
+  runs: 1
+  timeout: 30m
+  model: claude-sonnet-4.6
+stimuli:
+  - name: rust-storage-keyvault-encryption-library
+    prompt: |
+      Create a Rust library crate named blob_kv_encryptor that encrypts data before writing it
+      to Azure Blob Storage, using Azure Key Vault keys for envelope encryption.
+
+      The library should:
+      1. Expose a reusable API (library-style, not only a main binary) with a public type and methods
+      2. Initialize Azure credentials with a TokenCredential flow (no connection strings or account keys)
+      3. Use Azure Key Vault Keys SDK to wrap and unwrap a data encryption key (DEK)
+      4. Encrypt plaintext with the DEK and store ciphertext in blob storage
+      5. Persist metadata required to decrypt later (for example wrapped DEK, algorithm, and key id)
+      6. Provide a decrypt/read path that restores plaintext correctly
+      7. Include an example usage file showing write and read round-trip
+
+      Use idiomatic async Rust with Tokio and Result-based error handling.
+      Ensure that the example program works correctly and demonstrates the library's capabilities.
+
+      Assume data-at-rest encryption here means application-managed envelope encryption:
+      data is encrypted before upload, with keys protected by Key Vault.
+
+    rubric:
+      - "Implements a Rust library API with public types/functions for encrypt-then-upload and download-then-decrypt operations."
+      - "Uses official Azure Rust SDK patterns for both Blob Storage and Key Vault Keys."
+      - "Uses a TokenCredential-based authentication flow and avoids hardcoded credentials."
+      - "Demonstrates Key Vault wrap/unwrap operations (or equivalent key-protection flow) for DEK lifecycle."
+      - "Stores enough blob metadata or sidecar metadata to support deterministic decryption later."
+      - "Uses async Rust with Tokio runtime and idiomatic Result-based error propagation."
+      - "Code compiles and passes cargo check for the generated library project."
+      - "Avoids hardcoded secrets in source code or committed configuration."
+    workspace_files:
+      include:
+        - "**/Cargo.toml"
+        - "**/Cargo.lock"
+        - "**/build.rs"
+        - "**/src/**/*.rs"
+        - "**/examples/**/*.rs"
+        - "**/tests/**/*.rs"
+      exclude:
+        - "**/target/**"
+        - "**/*.rlib"
+        - "**/*.rmeta"
+        - "**/*.d"
+        - "**/*.o"
+        - "**/*.obj"
+        - "**/*.pdb"
+        - "**/*.exe"
+        - "**/*.dll"
+        - "**/*.so"
+        - "**/*.dylib"
+        - "**/*.a"
+        - "**/*.lib"
+        - "**/*.wasm"
+    environment:
+      skills:
+        - ../../../../.github/plugins/azure-sdk-rust/skills/azure-storage-blob-rust
+        - ../../../../.github/plugins/azure-sdk-rust/skills/azure-keyvault-keys-rust
+        - ../../../../.github/plugins/azure-sdk-rust/skills/azure-identity-rust
+      files:
+        - src: ../../_shared/vally/tools/find-cargo-root.js
+          dest: .vally/tools/find-cargo-root.js
+        - src: ../../_shared/vally/tools/check-azure-crates.rs
+          dest: .vally/tools/check-azure-crates.rs
+        - src: ../../_shared/vally/tools/check-token-credential.rs
+          dest: .vally/tools/check-token-credential.rs
+        - src: ../../_shared/vally/tools/check-async-runtime.rs
+          dest: .vally/tools/check-async-runtime.rs
+        - src: ../../_shared/vally/tools/check-no-secrets.rs
+          dest: .vally/tools/check-no-secrets.rs
+        - src: workspace/cargo.toml
+          dest: Cargo.toml
+    constraints:
+      expect_skills:
+        - azure-storage-blob-rust
+        - azure-keyvault-keys-rust
+        - azure-identity-rust
+    graders:
+      - type: prompt
+        name: "Key Vault-backed encryption-at-rest design completeness"
+        config:
+          model: gpt-5.3-codex
+          prompt: |
+            Verify the generated Rust solution is a reusable library and includes:
+            - Blob Storage client setup with account endpoint + TokenCredential
+            - Key Vault Keys client usage for key wrap/unwrap operations
+            - DEK lifecycle (generate/use/protect/restore) for encryption/decryption
+            - Upload of ciphertext rather than plaintext for encrypted writes
+            - Decrypt path that reconstructs plaintext from stored metadata + blob bytes
+            - Reasonable error handling and no embedded secrets
+          scoring: scale_1_5
+      - name: Official Azure SDK Crate Selection
+        type: program
+        weight: 1.0
+        config:
+          program: cargo
+          args:
+            - "+nightly"
+            - "-Zscript"
+            - ".vally/tools/check-azure-crates.rs"
+        timeout: 2m
+      - name: TokenCredential Authentication
+        type: program
+        weight: 1.0
+        config:
+          program: cargo
+          args:
+            - "+nightly"
+            - "-Zscript"
+            - ".vally/tools/check-token-credential.rs"
+        timeout: 2m
+      - name: Async-First with Tokio Runtime
+        type: program
+        weight: 1.0
+        config:
+          program: cargo
+          args:
+            - "+nightly"
+            - "-Zscript"
+            - ".vally/tools/check-async-runtime.rs"
+        timeout: 2m
+      - name: No Hardcoded Secrets
+        type: program
+        weight: 1.0
+        config:
+          program: cargo
+          args:
+            - "+nightly"
+            - "-Zscript"
+            - ".vally/tools/check-no-secrets.rs"
+        timeout: 2m
+      - name: Rust Cargo Trajectory Build Failure
+        type: rust-cargo-build-failure-check
+        weight: 1.0
+        config:
+          collect_trajectory_compiler_errors: true
+          emit_in_metadata: true
+          error_exceptions:
+            - error_code: E0277
+              message_pattern: "Option<std::string::String>"
+              action: ignore_for_fail
+      - name: Post prompt Rust Cargo Build Failure
+        type: rust-cargo-build-failure-check
+        weight: 1.0
+        config:
+          commands:
+            - command: cargo build
+          emit_in_metadata: true
+          error_exceptions:
+            - error_code: E0277
+              message_pattern: "Option<std::string::String>"
+              action: ignore_for_fail
+      - name: Post prompt Rust Cargo Check Failure
+        type: rust-cargo-build-failure-check
+        weight: 1.0
+        config:
+          commands:
+            - command: cargo check
+          emit_in_metadata: true
+          error_exceptions:
+            - error_code: E0277
+              message_pattern: "Option<std::string::String>"
+              action: ignore_for_fail
+      - name: Post prompt Rust Cargo Clippy Failure
+        type: rust-cargo-build-failure-check
+        weight: 1.0
+        config:
+          commands:
+            - command: cargo clippy
+          emit_in_metadata: true
+          error_exceptions:
+            - error_code: E0277
+              message_pattern: "Option<std::string::String>"
+              action: ignore_for_fail
